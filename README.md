@@ -11,7 +11,7 @@ This work is a collaborative effort across a team of contributors at Colorado St
 * Dr. Curtis Bell [Naval War College]
 * Daniel Hueholt
 * Dr. Patrick Keys
-* Dr. Zack Labe
+* [Dr. Zack Labe](https://sites.uci.edu/zlabe)
 * Dr. Antonios Mamalakis
 * Kirsten Mayer
 * Dr. Ariel Morrison
