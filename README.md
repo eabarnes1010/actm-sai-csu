@@ -23,9 +23,9 @@ Solar radiation management (SRM) refers to the possibility of moderating anthrop
 
 
 Our approach is three-fold:
-* Develop and apply novel Artificial Intelligence (AI) algorithms to detect, attribute, and quantify solar radiation management (SRM) effects on climate
-* Use AI to quantify the risks and uncertainties of Earth system impacts under different SRM scenarios
-* Design, simulate and analyze plausible geopolitically-motivated SRM deployment scenarios
+1. Design, simulate and analyze plausible geopolitically-motivated SRM deployment scenarios
+2. Develop and apply novel Artificial Intelligence (AI) algorithms to detect, attribute, and quantify solar radiation management (SRM) effects on climate
+3. Use AI to quantify the risks and uncertainties of Earth system impacts under different SRM scenarios
 
 
 ## Publications and Preprints
