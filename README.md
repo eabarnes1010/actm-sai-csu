@@ -2,6 +2,8 @@
 ***
 Artificial intelligence to detect, attribute, and quantify solar radiation management (SRM) effects and risks under a range of geopolitical scenarios.
 
+![project_schematic](images/project_steps.png)
+
 ## Team
 This work is a collaborative effort across a team of contributors at Colorado State University and partners: 
 * Dr. James Hurrell [PI]
@@ -33,11 +35,11 @@ Our approach is three-fold:
 ## Extra Information
 
 
-### Funding source
+#### Funding source
 Funded by DARPA‐PA‐21‐04‐02 with PIs Prof. James Hurrell and [Prof. Elizabeth A. Barnes](https://barnes.atmos.colostate.edu) at Colorado State University.
 
 
-### License
+#### License
 This project is licensed under an MIT license.
 
 MIT © [Elizabeth A. Barnes](https://github.com/eabarnes1010)
