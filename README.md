@@ -13,7 +13,7 @@ This work is a collaborative effort across a team of contributors at Colorado St
 * Dr. Patrick Keys
 * [Dr. Zack Labe](https://sites.uci.edu/zlabe)
 * Dr. Antonios Mamalakis
-* Kirsten Mayer
+* [Kirsten Mayer](https://sites.google.com/rams.colostate.edu/kirsten-j-mayer/home)
 * Dr. Ariel Morrison
 
 ## Project Summary
