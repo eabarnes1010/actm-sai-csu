@@ -12,7 +12,7 @@ This work is a collaborative effort across a team of contributors at Colorado St
 * Daniel Hueholt
 * Dr. Patrick Keys
 * [Dr. Zack Labe](https://sites.uci.edu/zlabe)
-* Dr. Antonios Mamalakis
+* [Dr. Antonios Mamalakis](https://amamalak.wixsite.com/antonios)
 * [Kirsten Mayer](https://sites.google.com/rams.colostate.edu/kirsten-j-mayer/home)
 * [Dr. Ariel Morrison](https://www.ariel-morrison.com)
 
