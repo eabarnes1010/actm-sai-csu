@@ -9,6 +9,8 @@ The climate is projected to continue warming in the coming decades. To mitgate t
 
 ## Create empty directories
 * You will also need to make additional directories:
+    * ```functions/```
+    * ```saved_models/```
     * ```figures/```    
 
 ## Data Access
@@ -16,7 +18,13 @@ The climate is projected to continue warming in the coming decades. To mitgate t
 * Data should be stored in the directory called ```data/```
 
 ## Order of code execution
-Step 1: _analysis_arise.ipynb
+ENSO Teleconnection Analysis:
+Step 1: Nino34_t2mteleconnections.py
+Step 2: plot_t2mteleconnections.py
+Neural Network Analysis:
+Step 1: trainNN.py
+Step 2: evaluateNN.py
+Step 3: plot_accvsconf.py
 
 # Extra Information
 
