@@ -21,6 +21,7 @@ The climate is projected to continue warming in the coming decades. To mitgate t
 * ENSO Teleconnection Analysis:
    * Step 1: Nino34_t2mteleconnections.py
    * Step 2: plot_t2mteleconnections.py
+   * Step 3: plot_t2mteleconnections_freqhist.py
 * Neural Network Analysis:
    * Step 1: trainNN.py
    * Step 2: evaluateNN.py
