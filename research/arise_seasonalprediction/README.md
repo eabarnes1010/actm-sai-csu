@@ -14,7 +14,7 @@ The climate is projected to continue warming in the coming decades. In addition 
     * ```figures/```    
 
 ## Data Access
-* ARISE data can be accessed at this url: 
+* ARISE data can be accessed at this url: TBD
 * Data should be stored in the directory called ```data/```
 
 ## Order of code execution
@@ -22,7 +22,7 @@ The climate is projected to continue warming in the coming decades. In addition 
    * Step 1: Nino34_t2mteleconnections.py
    * Step 2: plot_t2mteleconnections.py
    * Step 3: plot_t2mteleconnections_freqhist.py
-* Neural Network Analysis:
+* Neural Network Analysis: (will be uploaded soon)
    * Step 1: trainNN.py
    * Step 2: evaluateNN.py
    * Step 3: plot_accvsconf.py
