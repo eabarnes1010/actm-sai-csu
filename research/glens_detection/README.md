@@ -1,5 +1,4 @@
 # Project Description
-***
 * __project-name__: glens_detection
 * __author__: Elizabeth A. Barnes, James Hurrell and Lantao Sun
 * __date__: June 13, 2022
@@ -8,7 +7,6 @@ We train a simple machine learning model to predict whether a map of global extr
 
 
 # Run the code
-***
 
 ## Create empty directories
 * You will also need to make additional directories:
@@ -29,7 +27,7 @@ Step 3: plot_results.ipynb
 
 
 # Extra Information
-***
+
 ## License
 This project is licensed under an MIT license.
 
