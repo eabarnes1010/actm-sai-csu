@@ -4,7 +4,7 @@ We analyze the regional and global climate responses in GLENS and ARISE for a
 variety of familiar variables. We identify research questions that allow us to
 use GLENS and ARISE together.
 
-![Timeseries of global mean 2m temperature in GLENS and ARISE.](research/images/2mTemp_GlobalMean_GlensArise.png)
+![Timeseries of global mean 2m temperature in GLENS and ARISE.](images/2mTemp_GlobalMean_GlensArise.png)
 
 ## Project Summary
 The regional and global climate responses to SAI are not well understood. In
