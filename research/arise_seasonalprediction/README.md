@@ -18,13 +18,13 @@ The climate is projected to continue warming in the coming decades. To mitgate t
 * Data should be stored in the directory called ```data/```
 
 ## Order of code execution
-ENSO Teleconnection Analysis:
-Step 1: Nino34_t2mteleconnections.py
-Step 2: plot_t2mteleconnections.py
-Neural Network Analysis:
-Step 1: trainNN.py
-Step 2: evaluateNN.py
-Step 3: plot_accvsconf.py
+* ENSO Teleconnection Analysis:
+   * Step 1: Nino34_t2mteleconnections.py
+   * Step 2: plot_t2mteleconnections.py
+* Neural Network Analysis:
+   * Step 1: trainNN.py
+   * Step 2: evaluateNN.py
+   * Step 3: plot_accvsconf.py
 
 # Extra Information
 
