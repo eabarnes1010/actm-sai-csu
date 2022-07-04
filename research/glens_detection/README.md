@@ -17,7 +17,7 @@ We train a simple machine learning model to predict whether a map of global extr
 
 
 ## Data Access
-* Data can be accessed at this url: 
+* Data can be accessed at the group data server [here](https://eabarnes-data.atmos.colostate.edu/projects/actm-sai-csu/glens_detection/). 
 * Data should be stored in a directory called ```data/```
 
 ## Order of code execution
