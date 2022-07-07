@@ -14,7 +14,7 @@ The climate is projected to continue warming in the coming decades. In addition 
     * ```figures/```    
 
 ## Data Access
-* ARISE data can be accessed [here](https://eabarnes-data.atmos.colostate.edu/projects/actm-sai-csu/arise_seasonalprediction/)
+* ARISE data for this work can be accessed [here](https://eabarnes-data.atmos.colostate.edu/projects/actm-sai-csu/arise_seasonalprediction/).
 * Data should be stored in the directory called ```data/```
 
 ## Order of code execution
