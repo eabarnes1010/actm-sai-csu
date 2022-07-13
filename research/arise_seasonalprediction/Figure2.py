@@ -4,6 +4,10 @@
 Created on Thu Jul  7 15:40:31 2022
 
 @author: kmayer
+
+Plot winter (NDJFM) 2m temperature variance 
+for SSP & SAI and plot the difference (SSP-SAI)
+
 """
 import numpy as np
 import xarray as xr
