@@ -55,24 +55,45 @@ left2_ilon  = 188
 right2_ilon = 201-1
 #'alaska'
 lower3_ilat = 154    
-upper3_ilat = 171    
+upper3_ilat = 172-1
 left3_ilon  = 152    
 right3_ilon = 201-1
 
 #%% LOAD
-nino_base = xr.open_dataarray(DIR+'base_ens1-10_freqofposT2m_nino_detrended_ensmean'+MEMstr+'.nc')
-nina_base = xr.open_dataarray(DIR+'base_ens1-10_freqofposT2m_nina_detrended_ensmean'+MEMstr+'.nc')
 
 nino_cont = xr.open_dataarray(DIR+'control_ens1-10_freqofposT2m_nino_detrended_ensmean'+MEMstr+'.nc')
 nina_cont = xr.open_dataarray(DIR+'control_ens1-10_freqofposT2m_nina_detrended_ensmean'+MEMstr+'.nc')
 
 nino_sai = xr.open_dataarray(DIR+'SAI_ens1-10_freqofposT2m_nino_detrended_ensmean'+MEMstr+'.nc')
 nina_sai = xr.open_dataarray(DIR+'SAI_ens1-10_freqofposT2m_nina_detrended_ensmean'+MEMstr+'.nc') 
-   
 
-#grab lats & lons to make boxes around the 3 regions
-lon = np.asarray(nino_base.lon)
-lat = np.asarray(nino_base.lat)
+# ---- ensemble mean of freq of positive sign anomaly ----
+nino_cont_mean = nino_cont.mean('ens',skipna=True)
+nina_cont_mean = nina_cont.mean('ens',skipna=True)
+
+nino_sai_mean = nino_sai.mean('ens',skipna=True)
+nina_sai_mean = nina_sai.mean('ens',skipna=True)
+
+# ---- load bootrapping data & calculate significance bounds ----
+nino_diff_boot = xr.open_dataarray(DIR+'bootstrapping/bootdiff_ens1-10_freqofposT2m_nino_detrended_ensmean'+MEMstr+'.nc')
+nina_diff_boot = xr.open_dataarray(DIR+'bootstrapping/bootdiff_ens1-10_freqofposT2m_nina_detrended_ensmean'+MEMstr+'.nc')
+
+nino_sigup = np.percentile(nino_diff_boot,q=95,axis=0)
+nino_siglow = np.percentile(nino_diff_boot,q=5,axis=0)
+
+nina_sigup = np.percentile(nina_diff_boot,q=95,axis=0)
+nina_siglow = np.percentile(nina_diff_boot,q=5,axis=0)
+
+# ---- calculate differences & find significant locations for plotting
+ninadiff = nina_cont_mean - nina_sai_mean
+ninadiff_sig = ninadiff.where((ninadiff > nina_sigup) | (ninadiff < nina_siglow))
+
+ninodiff = nino_cont_mean - nino_sai_mean
+ninodiff_sig = ninodiff.where((ninodiff > nino_sigup) | (ninodiff < nino_siglow))
+
+# ---- make regional boxes ----
+lon = np.asarray(nino_sai.lon)
+lat = np.asarray(nino_sai.lat)
     
 lons1 = [lon[left1_ilon]-360.0,lon[left1_ilon]-360.0,lon[right1_ilon]-360.0,lon[right1_ilon]-360.0]   
 lats1 = [lat[lower1_ilat],lat[upper1_ilat],lat[upper1_ilat],lat[lower1_ilat]]  
@@ -86,207 +107,113 @@ lons3 = [lon[left3_ilon]-360.0,lon[left3_ilon]-360.0,lon[right3_ilon]-360.0,lon[
 lats3 = [lat[lower3_ilat],lat[upper3_ilat],lat[upper3_ilat],lat[lower3_ilat]]  
 ring3 = LinearRing(list(zip(lons3,lats3)))
 
-#%% ------------------- PLOT map of frequency of positive sign T2m anomaly following ENSO -------------------------
+
+#%% ------------------- PLOT -------------------------  
+
+fig = plt.figure(figsize=(20,11))
+ax = fig.subplot_mosaic('''
+                        ABC
+                        DEF
+                        ''',subplot_kw={'projection':ccrs.PlateCarree(180)})
+                        
+for loc in ['A','B','C','D','E','F']:   
+    ax[loc].coastlines(resolution='50m', color='dimgrey', linewidth=1)
+    ax[loc].set_ylim(24,72)
+    ax[loc].set_xlim(9.5,72)
+    ax[loc].axis("off")
+    
+    ax[loc].add_geometries([ring1], ccrs.PlateCarree(), facecolor='none', edgecolor='k',linewidth=3)
+    ax[loc].add_geometries([ring2], ccrs.PlateCarree(), facecolor='none', edgecolor='k',linewidth=3)
+    ax[loc].add_geometries([ring3], ccrs.PlateCarree(), facecolor='none', edgecolor='k',linewidth=3)
+    
+for loc in ['A','D']:    
+  gl = ax[loc].gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=.2)
+  gl.top_labels = False
+  gl.right_labels = False
+  if loc == 'A':
+      gl.bottom_labels = False
+  else:
+      gl.xlocator = mticker.FixedLocator([-160,-140,-120,-100,-80,-60])
+      gl.xformatter = LONGITUDE_FORMATTER
+      gl.xlabel_style = {'size': 25, 'color': 'darkgrey'}
+  gl.ylocator = mticker.FixedLocator([30,40,50,60,70])
+  gl.yformatter = LATITUDE_FORMATTER
+  gl.ylabel_style = {'size': 25, 'color': 'darkgrey'}
+
+for loc in ['B','C']:
+   gl = ax[loc].gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=.2)
+   gl.top_labels = False
+   gl.bottom_labels = False
+   gl.right_labels = False
+   gl.left_labels = False
+
+for loc in ['E','F']:   
+  gl = ax[loc].gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=.2)
+  gl.top_labels = False
+  gl.right_labels = False
+  gl.left_labels = False
+  gl.xlocator = mticker.FixedLocator([-160,-140,-120,-100,-80,-60])
+  gl.xformatter = LONGITUDE_FORMATTER
+  gl.xlabel_style = {'size': 25, 'color': 'darkgrey'}
+    
+# ------------------- PLOT LA NINA -------------------------    
 cmap = 'RdBu_r'
 csm=plt.get_cmap(cmap)
-norm = c.BoundaryNorm(np.arange(0, 1.05, .05),csm.N)
+norm = c.BoundaryNorm(np.arange(0, 1.05, .05),csm.N)  
 
-fig = plt.figure(figsize=(10,15))
-ax = fig.subplot_mosaic('''
-                        A
-                        B
-                        C
-                        ''',subplot_kw={'projection':ccrs.PlateCarree(180)})
-                        
-for loc in ['A','B','C']:   
-    ax[loc].coastlines(resolution='50m', color='dimgrey', linewidth=1)
-    ax[loc].set_ylim(24,72)
-    ax[loc].set_xlim(9.5,125)
-    ax[loc].axis("off")
-    gl = ax[loc].gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=0)
-    gl.top_labels = False
-    gl.right_labels = False
-    gl.ylocator = mticker.FixedLocator([30,40,50,60,70])
-    gl.xlocator = mticker.FixedLocator([-160,-140,-120,-100,-80,-60])
-    gl.xformatter = LONGITUDE_FORMATTER
-    gl.yformatter = LATITUDE_FORMATTER
-    gl.xlabel_style = {'size': 20, 'color': 'darkgrey'}
-    gl.ylabel_style = {'size': 20, 'color': 'darkgrey'}
-    ax[loc].add_geometries([ring1], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring2], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring3], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    
-    
-c1 = ax['A'].pcolormesh(nino_base.lon,nino_base.lat,nino_base[0],cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
-ax['A'].text(x=11,y=25,s='BASE',fontsize=30,color='dimgrey')
+c1 = ax['A'].pcolormesh(nina_cont.lon,nina_cont.lat,nina_cont_mean,cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
+ax['A'].text(x=11,y=25,s='(a) SSP2-4.5',fontsize=30,color='dimgrey')
+ax['A'].set_title('LA NINA',fontsize=40,color='dimgrey',loc='left')
 
-c2 = ax['B'].pcolormesh(nino_sai.lon,nino_sai.lat,nino_sai[0],cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
-ax['B'].text(x=11,y=25,s='SAI-1.5',fontsize=30,color='dimgrey')
+c2 = ax['B'].pcolormesh(nina_sai.lon,nina_sai.lat,nina_sai_mean,cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
+ax['B'].text(x=11,y=25,s='(b) SAI-1.5',fontsize=30,color='dimgrey')
 
-c3 = ax['C'].pcolormesh(nino_cont.lon,nino_cont.lat,nino_cont[0],cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
-ax['C'].text(x=11,y=25,s='SSP2-4.5',fontsize=30,color='dimgrey')
-
-cax = plt.axes([0.125,0.07,0.775,0.015])
-cbar = plt.colorbar(c3,cax=cax,orientation = 'horizontal', ticks=np.arange(0,1.25,.25),shrink=0.75)
-cbar.ax.tick_params(size=0,labelsize=22)
-cbar.ax.set_xticklabels(np.arange(0,1.25,.25),color='darkgrey')
-cbar.ax.set_xlabel('$<$ Negative $|$ Positive $>$',fontsize=22,color='dimgrey')
-
-# plt.show()
-DIR_FIGSAVE = 'figures/'
-plt.savefig(DIR_FIGSAVE+'posfreq_ElNino_testmember10.png',bbox_inches='tight',dpi=300)
-
-   
-# ------------------- PLOT LA NINA -------------------------      
-fig = plt.figure(figsize=(10,15))#,constrained_layout=True)  
-ax = fig.subplot_mosaic('''
-                        A
-                        B
-                        C
-                        ''',subplot_kw={'projection':ccrs.PlateCarree(180)})
-                        
-for loc in ['A','B','C']:
-    ax[loc].coastlines(resolution='50m', color='dimgrey', linewidth=1)
-    ax[loc].set_ylim(24,72)
-    ax[loc].set_xlim(9.5,125)
-    ax[loc].axis("off")
-    gl = ax[loc].gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=0)
-    gl.top_labels = False
-    gl.right_labels = False
-    gl.ylocator = mticker.FixedLocator([30,40,50,60,70])
-    gl.xlocator = mticker.FixedLocator([-160,-140,-120,-100,-80,-60])
-    gl.xformatter = LONGITUDE_FORMATTER
-    gl.yformatter = LATITUDE_FORMATTER
-    gl.xlabel_style = {'size': 20, 'color': 'darkgrey'}
-    gl.ylabel_style = {'size': 20, 'color': 'darkgrey'}
-    ax[loc].add_geometries([ring1], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring2], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring3], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-
-
-c1 = ax['A'].pcolormesh(nina_base.lon,nina_base.lat,nina_base[0],cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
-ax['A'].text(x=11,y=25,s='BASE',fontsize=30,color='dimgrey')
-
-c2 = ax['B'].pcolormesh(nina_sai.lon,nina_sai.lat,nina_sai[0],cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
-ax['B'].text(x=11,y=25,s='SAI-1.5',fontsize=30,color='dimgrey')
-
-c3 = ax['C'].pcolormesh(nina_cont.lon,nina_cont.lat,nina_cont[0],cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
-ax['C'].text(x=11,y=25,s='SSP2-4.5',fontsize=30,color='dimgrey')
-
-cax = plt.axes([0.125,0.07,0.775,0.015])
-cbar = plt.colorbar(c3,cax=cax,orientation = 'horizontal', ticks=np.arange(0,1.25,.25),shrink=0.75)
-cbar.ax.tick_params(size=0,labelsize=22)
-cbar.ax.set_xticklabels(np.arange(0,1.25,.25),color='darkgrey')
-cbar.ax.set_xlabel('$<$ Negative $|$ Positive $>$',fontsize=22,color='dimgrey')
-
-# plt.show()
-
-DIR_FIGSAVE = 'figures/'
-plt.savefig(DIR_FIGSAVE+'posfreq_LaNina_testmember10.png',bbox_inches='tight',dpi=300)
-    
-
-#%% Plot the difference between SAI - BASE, SSP - BASE & SSP - SAI
-cmap = 'RdBu_r'
+# ------------------- PLOT LA NINA DIFF -------------------------    
+cmap = 'PuOr_r'
 csm=plt.get_cmap(cmap)
 norm = c.BoundaryNorm(np.arange(-.5, .55, .05),csm.N)
 
+c3 = ax['C'].pcolormesh(nina_sai.lon,nina_sai.lat,ninadiff,cmap=csm,transform=ccrs.PlateCarree(),vmin=-1,vmax=1.,norm=norm)
+ax['C'].text(x=11,y=25,s='(c) SSP - SAI',fontsize=30.,color='dimgrey')
+
+ax['C'].pcolor(ninadiff_sig.lon,ninadiff_sig.lat,ninadiff_sig,hatch='/',alpha=0,linewidth=10,transform=ccrs.PlateCarree())
+
+#------------------------------------------------------------------------------------------
+
 # ------------------- PLOT EL NINO -------------------------
-diff1 = nino_cont[0] - nino_sai[0]
-diff2 = nino_sai[0] - nino_base[0]
-diff3 = nino_cont[0] - nino_base[0]
+cmap = 'RdBu_r'
+csm=plt.get_cmap(cmap)
+norm = c.BoundaryNorm(np.arange(0, 1.05, .05),csm.N) 
+ 
+c3 = ax['D'].pcolormesh(nino_cont.lon,nino_cont.lat,nino_cont_mean,cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
+ax['D'].text(x=11,y=25,s='(d) SSP2-4.5',fontsize=30,color='dimgrey')
+ax['D'].set_title('EL NINO',fontsize=40,color='dimgrey',loc='left')
 
-fig = plt.figure(figsize=(10,15))
-ax = fig.subplot_mosaic('''
-                        A
-                        B
-                        C
-                        ''',subplot_kw={'projection':ccrs.PlateCarree(180)})
-                        
-for loc in ['A','B','C']:
-    ax[loc].coastlines(resolution='50m', color='dimgrey', linewidth=1)
-    ax[loc].set_ylim(24,72)
-    ax[loc].set_xlim(9.5,125)
-    ax[loc].axis("off")
-    gl = ax[loc].gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=0)
-    gl.top_labels = False
-    gl.right_labels = False
-    gl.ylocator = mticker.FixedLocator([30,40,50,60,70])
-    gl.xlocator = mticker.FixedLocator([-160,-140,-120,-100,-80,-60])
-    gl.xformatter = LONGITUDE_FORMATTER
-    gl.yformatter = LATITUDE_FORMATTER
-    gl.xlabel_style = {'size': 20, 'color': 'darkgrey'}
-    gl.ylabel_style = {'size': 20, 'color': 'darkgrey'}
-    ax[loc].add_geometries([ring1], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring2], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring3], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
+c5 = ax['E'].pcolormesh(nino_sai.lon,nino_sai.lat,nino_sai_mean,cmap=csm,transform=ccrs.PlateCarree(),vmin=0,vmax=1.,norm=norm)
+ax['E'].text(x=11,y=25,s='(e) SAI-1.5',fontsize=30,color='dimgrey')
 
+cax = plt.axes([.125,0.05,0.5,0.03])
+cbar = plt.colorbar(c5,cax=cax,orientation = 'horizontal', ticks=np.arange(0,1.25,.25),shrink=0.5, pad=0.1)
+cbar.ax.tick_params(size=0,labelsize=28)
+cbar.ax.set_xticklabels(np.arange(0,1.25,.25),color='darkgrey')
+cbar.ax.set_xlabel('frequency (of positive sign)',fontsize=30,color='darkgrey')
 
-c1 = ax['A'].pcolormesh(nino_base.lon,nino_base.lat,diff1,cmap=csm,transform=ccrs.PlateCarree(),vmin=-.5,vmax=.5,norm=norm)
-ax['A'].text(x=11,y=25,s='SSP2-4.5 - SAI-1.5',fontsize=25,color='dimgrey')
-c2 = ax['B'].pcolormesh(nino_base.lon,nino_base.lat,diff2,cmap=csm,transform=ccrs.PlateCarree(),vmin=-.5,vmax=.5,norm=norm)
-ax['B'].text(x=11,y=25,s='SAI-1.5 - BASE',fontsize=25,color='dimgrey')
-c3 = ax['C'].pcolormesh(nino_base.lon,nino_base.lat,diff3,cmap=csm,transform=ccrs.PlateCarree(),vmin=-.5,vmax=.5,norm=norm)
-ax['C'].text(x=11,y=25,s='SSP2-4.5 - BASE',fontsize=25,color='dimgrey')
+# ------------------- PLOT EL NINO DIFF -------------------------   
+cmap = 'PuOr_r'
+csm=plt.get_cmap(cmap)
+norm = c.BoundaryNorm(np.arange(-.5, .55, .05),csm.N)
 
+c6 = ax['F'].pcolormesh(nino_sai.lon,nino_sai.lat,ninodiff,cmap=csm,transform=ccrs.PlateCarree(),vmin=-.5,vmax=.5,norm=norm)
+ax['F'].text(x=11,y=25,s='(f) SSP - SAI',fontsize=30,color='dimgrey')
 
-cax = plt.axes([0.125,0.07,0.775,0.015])
-cbar = plt.colorbar(c3,cax=cax,orientation = 'horizontal',fraction=0.04, ticks=np.arange(-.5,.75,.25), pad=0.07)
-cbar.ax.tick_params(size=0,labelsize=20)
-cbar.ax.set_xticklabels(np.arange(-.5,0.75,.25),color='darkgrey')
-cbar.ax.set_xlabel('Frequency of Positive Sign: Difference',fontsize=22,color='dimgrey')
+ax['F'].pcolor(ninodiff_sig.lon,ninodiff_sig.lat,ninodiff_sig,hatch='/',alpha=0,linewidth=10,transform=ccrs.PlateCarree())
 
-
-# plt.show()
-DIR_FIGSAVE = 'figures/'
-plt.savefig(DIR_FIGSAVE+'posfreqdiff_ElNino_testmember10.png',bbox_inches='tight',dpi=300)
-
-# ------------------- PLOT LA NINA -------------------------      
-diff1 = nina_cont[0] - nina_sai[0]
-diff2 = nina_sai[0] - nina_base[0]
-diff3 = nina_cont[0] - nina_base[0]
-
-fig = plt.figure(figsize=(10,15))#,constrained_layout=True)
-ax = fig.subplot_mosaic('''
-                        A
-                        B
-                        C
-                        ''',subplot_kw={'projection':ccrs.PlateCarree(180)})
-                        
-for loc in ['A','B','C']:
-    ax[loc].coastlines(resolution='50m', color='dimgrey', linewidth=1)
-    ax[loc].set_ylim(24,72)
-    ax[loc].set_xlim(9.5,125)
-    ax[loc].axis("off")
-    gl = ax[loc].gridlines(crs=ccrs.PlateCarree(), draw_labels=True,linewidth=0)
-    gl.top_labels = False
-    gl.right_labels = False
-    gl.ylocator = mticker.FixedLocator([30,40,50,60,70])
-    gl.xlocator = mticker.FixedLocator([-160,-140,-120,-100,-80,-60])
-    gl.xformatter = LONGITUDE_FORMATTER
-    gl.yformatter = LATITUDE_FORMATTER
-    gl.xlabel_style = {'size': 20, 'color': 'darkgrey'}
-    gl.ylabel_style = {'size': 20, 'color': 'darkgrey'}
-    ax[loc].add_geometries([ring1], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring2], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-    ax[loc].add_geometries([ring3], ccrs.PlateCarree(), facecolor='none', edgecolor='k')
-
-
-c1 = ax['A'].pcolormesh(nina_base.lon,nina_base.lat,diff1,cmap=csm,transform=ccrs.PlateCarree(),vmin=-1,vmax=1.,norm=norm)
-ax['A'].text(x=11,y=25,s='SSP2-4.5 - SAI-1.5',fontsize=25,color='dimgrey')
-c2 = ax['B'].pcolormesh(nina_base.lon,nina_base.lat,diff2,cmap=csm,transform=ccrs.PlateCarree(),vmin=-1,vmax=1.,norm=norm)
-ax['B'].text(x=11,y=25,s='SAI-1.5 - BASE',fontsize=25,color='dimgrey')
-c3 = ax['C'].pcolormesh(nina_base.lon,nina_base.lat,diff3,cmap=csm,transform=ccrs.PlateCarree(),vmin=-1,vmax=1.,norm=norm)
-ax['C'].text(x=11,y=25,s='SSP2-4.5 - BASE',fontsize=25,color='dimgrey')
-
-
-cax = plt.axes([0.125,0.07,0.775,0.015])
-cbar = plt.colorbar(c3,cax=cax,orientation = 'horizontal',fraction=0.04, ticks=np.arange(-.5,.75,.25), pad=0.07)
-cbar.ax.tick_params(size=0,labelsize=20)
-cbar.ax.set_xticklabels(np.arange(-.5,.75,.25),color='darkgrey')
-cbar.ax.set_xlabel('Frequency of Positive Sign: Difference',fontsize=22,color='dimgrey')
-
+cax2 = plt.axes([.675,0.05,0.225,0.03])
+cbar2 = plt.colorbar(c6,cax=cax2,orientation = 'horizontal',fraction=0.04, ticks=np.arange(-.5,.75,.25), pad=0.04)
+cbar2.ax.tick_params(size=0,labelsize=28)
+cbar2.ax.set_xticklabels(np.arange(-.5,0.75,.25),color='darkgrey')
+cbar2.ax.set_xlabel('frequency difference',fontsize=30,color='darkgrey')
 
 # plt.show()
 
-DIR_FIGSAVE = 'figures/'
-plt.savefig(DIR_FIGSAVE+'posfreqdiff_LaNina_testmember10.png',bbox_inches='tight',dpi=300)
+plt.savefig('figures/Figure3.png',bbox_inches='tight',dpi=300)
