@@ -18,14 +18,16 @@ The climate is projected to continue warming in the coming decades. In addition 
 * Data should be stored in the directory called ```data/```
 
 ## Order of code execution
+* Seasonal Variability Analysis:
+   * Step 1: t2m_variance.py
+   * Step 2: Figure2.py
 * ENSO Teleconnection Analysis:
    * Step 1: Nino34_t2mteleconnections.py
-   * Step 2: plot_t2mteleconnections.py
-   * Step 3: plot_t2mteleconnections_freqhist.py
-* Neural Network Analysis: (will be uploaded soon)
+   * Step 2: Figure3.py
+* Neural Network Analysis:
    * Step 1: trainNN.py
    * Step 2: evaluateNN.py
-   * Step 3: plot_accvsconf.py
+   * Step 3: Figure4.py
 
 # Extra Information
 
