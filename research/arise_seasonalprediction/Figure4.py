@@ -4,6 +4,9 @@
 Created on Wed Jun 29 11:40:38 2022
 
 @author: kmayer
+
+Plot neural network confidence vs accuracy &
+box and whisker plot of the 20% most confident predictions
 """
 import numpy as np
 import random
