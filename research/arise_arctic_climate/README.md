@@ -19,6 +19,13 @@ The Arctic is the fastest-warming region on Earth in response to increasing atmo
 ## Python environment
 * Install requirements.txt to load required python packages 
 
+## Running the code
+Scripts should be run in the following order:
+1. readData.py
+2. preprocessingData.py
+3. plottingFunctions.py
+4. train_and_predict_year.py
+
 ## License
 This project is licensed under an MIT license.
 
