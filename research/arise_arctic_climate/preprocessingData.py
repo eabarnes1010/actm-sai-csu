@@ -15,8 +15,14 @@ def preprocessDataForPrediction(timeFrame):
     datadir = '/Users/arielmor/Desktop/SAI/data/ARISE/data'
     
     ## ------ Read control & feedback active layer depth ------ ##
-    lat,lon,ALTcontrol,ALTcontrolGS,ALTcontrolNGS,ALTcontrolANN,ALTcontrolWINTER,ALTcontrolSPRING,ALTcontrolSUMMER,ALTcontrolFALL,ALTcontrolMARCH,ALTcontrolAPRIL,ALTcontrolJUNE,ALTcontrolJULY,ALTcontrolAUG,ALTcontrolSEPT,ALTcontrolOCT,ALTcontrolNOV,ALTcontrolDEC,ens,timeCONTROL = readData(datadir,'ALT',True)
-    lat,lon,ALTarise,ALTariseGS,ALTariseNGS,ALTariseANN,ALTariseWINTER,ALTariseSPRING,ALTariseSUMMER,ALTariseFALL,ALTariseMARCH,ALTariseAPRIL,ALTariseJUNE,ALTariseJULY,ALTariseAUG,ALTariseSEPT,ALTariseOCT,ALTariseNOV,ALTariseDEC,ens,timeARISE = readData(datadir,'ALT',False)
+    lat,lon,ALTcontrol,ALTcontrolGS,ALTcontrolNGS,ALTcontrolANN,ALTcontrolWINTER,ALTcontrolSPRING,\
+        ALTcontrolSUMMER,ALTcontrolFALL,ALTcontrolFEB,ALTcontrolMARCH,ALTcontrolAPRIL,ALTcontrolMAY,\
+            ALTcontrolJUNE,ALTcontrolJULY,ALTcontrolAUG,ALTcontrolSEPT,ALTcontrolOCT,ALTcontrolNOV,\
+                ALTcontrolDEC,ens,timeCONTROL = readData(datadir,'ALT',True)
+    lat,lon,ALTarise,ALTariseGS,ALTariseNGS,ALTariseANN,ALTariseWINTER,ALTariseSPRING,\
+        ALTariseSUMMER,ALTariseFALL,ALTariseFEB,ALTariseMARCH,ALTariseAPRIL,ALTariseMAY,\
+            ALTariseJUNE,ALTariseJULY,ALTariseAUG,ALTariseSEPT,ALTariseOCT,ALTariseNOV,\
+                ALTariseDEC,ens,timeARISE = readData(datadir,'ALT',False)
     ## ---------------------------------------------------- ##
     
     ## ------ Processing data ------ ##
@@ -62,12 +68,18 @@ def preprocessDataForPrediction(timeFrame):
         elif timeFrame   == 'fall':
             varCONTROL   = ALTcontrolFALL
             varFEEDBACK  = ALTariseFALL
+        elif timeFrame   == 'feb':
+            varCONTROL   = ALTcontrolFEB
+            varFEEDBACK  = ALTariseFEB
         elif timeFrame   == 'march':
             varCONTROL   = ALTcontrolMARCH
             varFEEDBACK  = ALTariseMARCH
         elif timeFrame   == 'april':
             varCONTROL   = ALTcontrolAPRIL
             varFEEDBACK  = ALTariseAPRIL
+        elif timeFrame   == 'may':
+            varCONTROL   = ALTcontrolMAY
+            varFEEDBACK  = ALTariseMAY
         elif timeFrame   == 'june':
             varCONTROL   = ALTcontrolJUNE
             varFEEDBACK  = ALTariseJUNE
@@ -176,20 +188,20 @@ def preprocessDataForPrediction(timeFrame):
     # ## ------ Map of last time step's active layer depth ------ ##
     from plottingFunctions import make_maps, get_colormap
     brbg_cmap,rdbu_cmap,jet,magma = get_colormap(21)
-    fig,ax = make_maps(varCONTROL[ens[testNum]][10,29:-6,:],lat[29:-6],lon,
+    fig,ax = make_maps(varCONTROL[ens[testNum]][-1,29:-6,:],lat[29:-6],lon,
                         0,20,21,magma,'depth (m)','ALT for control '+str(timeFrame),'LR_active_layer_map_CONTROL_'+str(timeFrame))
-    fig,ax = make_maps(varFEEDBACK[ens[testNum]][10,29:-6,:],lat[29:-6],lon,
+    fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:],lat[29:-6],lon,
                         0,20,21,magma,'depth (m)','ALT for feedback '+str(timeFrame),'LR_active_layer_map_FEEDBACK_'+str(timeFrame))
     fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:]),lat[29:-6],lon,
-                       -4,4,17,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
-    fig,ax = make_maps((features_test[0,-10,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
-                       -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feature_train_diff_'+str(timeFrame))
-    fig,ax = make_maps((features_test[1,-5,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
-                       -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feedback_diff_'+str(timeFrame))
-    fig,ax = make_maps(features_test[0,-10,:,:],lat[29:-6],lon,
-                       -5,5,21,rdbu_cmap,'depth (m)','feature_test for control '+str(timeFrame),'LR_active_layer_map_feature_test_control_'+str(timeFrame))
-    fig,ax = make_maps(features_test[1,-10,:,:],lat[29:-6],lon,
-                       -5,5,21,rdbu_cmap,'depth (m)','feature_test for feedback '+str(timeFrame),'LR_active_layer_map_feature_test_feedback_'+str(timeFrame))
+                       -4,4,17,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    # fig,ax = make_maps((features_test[0,-10,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
+    #                    -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feature_train_diff_'+str(timeFrame))
+    # fig,ax = make_maps((features_test[1,-5,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
+    #                    -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feedback_diff_'+str(timeFrame))
+    # fig,ax = make_maps(features_test[0,-10,:,:],lat[29:-6],lon,
+    #                    -5,5,21,rdbu_cmap,'depth (m)','feature_test for control '+str(timeFrame),'LR_active_layer_map_feature_test_control_'+str(timeFrame))
+    # fig,ax = make_maps(features_test[1,-10,:,:],lat[29:-6],lon,
+    #                    -5,5,21,rdbu_cmap,'depth (m)','feature_test for feedback '+str(timeFrame),'LR_active_layer_map_feature_test_feedback_'+str(timeFrame))
     
     del fig, ax
     # ## ----------------------------- ##

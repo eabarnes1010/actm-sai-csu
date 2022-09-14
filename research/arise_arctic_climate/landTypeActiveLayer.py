@@ -24,7 +24,6 @@ def getLandType():
     
     ds = xr.open_dataset(dataDirCESM + '/surfdata_0.9x1.25_78pfts_CMIP6_simyr2000_c170824.nc')
     peatland = ds.peatf[107:,:]
-    pft = ds.PCT_NAT_PFT[:,107:,:]; forest = np.nansum(pft[1:9,:,:],axis=0)
     ds.close()
     
     ds = xr.open_dataset(dataDirCESM + '/gridareaNH.nc')

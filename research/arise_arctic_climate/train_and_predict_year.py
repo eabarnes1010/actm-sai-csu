@@ -27,7 +27,7 @@ np.random.seed(99)
 tf.random.set_seed(99)
 
 ## ------ Choose parameters ------ ##
-timeFrame   = 'spring'
+timeFrame   = 'feb'
 batch_size  = 28
 epochs      = 6
 verbose     = 2
@@ -38,7 +38,8 @@ dropout     = 0.25
 l1, l2      = 0.015,0.8
 
 ## ------ Get processed training and test data ------ ##
-lat,lon,features_train,features_val,features_test,labels_train,labels_val,labels_test,lenTime = preprocessDataForPrediction(str(timeFrame))
+lat,lon,features_train,features_val,features_test,\
+    labels_train,labels_val,labels_test,lenTime = preprocessDataForPrediction(str(timeFrame))
 ## ---------------------------------------------------- ## 
 
 ## ------ Categorical labels ------ ##
