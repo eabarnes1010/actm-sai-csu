@@ -6,23 +6,26 @@ Created on Thu Jul 21 15:59:11 2022
 @author: Ariel L. Morrison
 """
 
-def preprocessDataForPrediction(timeFrame):
+def preprocessDataForPrediction(timeFrame,var):
     import os; os.chdir('/Users/arielmor/Projects/actm-sai-csu/research/arise_arctic_climate')
     from readData import readData
     import numpy as np
     import warnings
     
     datadir = '/Users/arielmor/Desktop/SAI/data/ARISE/data'
-    
     ## ------ Read control & feedback active layer depth ------ ##
-    lat,lon,ALTcontrol,ALTcontrolGS,ALTcontrolNGS,ALTcontrolANN,ALTcontrolWINTER,ALTcontrolSPRING,\
-        ALTcontrolSUMMER,ALTcontrolFALL,ALTcontrolFEB,ALTcontrolMARCH,ALTcontrolAPRIL,ALTcontrolMAY,\
-            ALTcontrolJUNE,ALTcontrolJULY,ALTcontrolAUG,ALTcontrolSEPT,ALTcontrolOCT,ALTcontrolNOV,\
-                ALTcontrolDEC,ens,timeCONTROL = readData(datadir,'ALT',True)
-    lat,lon,ALTarise,ALTariseGS,ALTariseNGS,ALTariseANN,ALTariseWINTER,ALTariseSPRING,\
-        ALTariseSUMMER,ALTariseFALL,ALTariseFEB,ALTariseMARCH,ALTariseAPRIL,ALTariseMAY,\
-            ALTariseJUNE,ALTariseJULY,ALTariseAUG,ALTariseSEPT,ALTariseOCT,ALTariseNOV,\
-                ALTariseDEC,ens,timeARISE = readData(datadir,'ALT',False)
+    if var == 'ALT':
+        lat,lon,control,controlGS,controlNGS,controlANN,controlWINTER,controlSPRING,\
+            controlSUMMER,controlFALL,controlFEB,controlMARCH,controlAPRIL,controlMAY,\
+                controlJUNE,controlJULY,controlAUG,controlSEPT,controlOCT,controlNOV,\
+                    controlDEC,ens,timeCONTROL = readData(datadir,str(var),True)
+        lat,lon,arise,ariseGS,ariseNGS,ariseANN,ariseWINTER,ariseSPRING,\
+            ariseSUMMER,ariseFALL,ariseFEB,ariseMARCH,ariseAPRIL,ariseMAY,\
+                ariseJUNE,ariseJULY,ariseAUG,ariseSEPT,ariseOCT,ariseNOV,\
+                    ariseDEC,ens,timeARISE = readData(datadir,str(var),False)
+    elif var == 'ER':
+        lat,lon,control,ens,timeCONTROL = readData(datadir,str(var),True)
+        lat,lon,arise,ens,timeARISE = readData(datadir,str(var),False)
     ## ---------------------------------------------------- ##
     
     ## ------ Processing data ------ ##
@@ -33,80 +36,91 @@ def preprocessDataForPrediction(timeFrame):
     '''
     numYears = 20
     if timeFrame == 'monthly':
-        timeStartControl = 240 # np.where(ALTcontrol[ens[0]].time == np.datetime64(datetime.datetime(2035, 1, 1)))
-        timeEndFeedback  = 359 # np.where(ALTarise[ens[0]].time == np.datetime64(datetime.datetime(2064, 12, 1)))
-        varCONTROL       = ALTcontrol
-        varFEEDBACK      = ALTarise
+        timeStartControl = 240 # np.where(control[ens[0]].time == np.datetime64(datetime.datetime(2035, 1, 1)))
+        timeEndFeedback  = 359 # np.where(arise[ens[0]].time == np.datetime64(datetime.datetime(2064, 12, 1)))
+        varCONTROL       = control
+        varFEEDBACK      = arise
         lenTime          = 12*numYears
         numUnits         = 360 # number of total months
     elif timeFrame == 'winter' or timeFrame == 'non_growing_season':
-        timeStartControl = int(np.abs(2035-ALTcontrolANN[ens[0]].year).argmin())
-        timeEndFeedback  = int(np.abs(2063-ALTariseANN[ens[0]].year).argmin())
+        timeStartControl = int(np.abs(2035-controlANN[ens[0]].year).argmin())
+        timeEndFeedback  = int(np.abs(2063-ariseANN[ens[0]].year).argmin())
         if timeFrame     == 'winter':
-            varCONTROL   = ALTcontrolWINTER
-            varFEEDBACK  = ALTariseWINTER
+            varCONTROL   = controlWINTER
+            varFEEDBACK  = ariseWINTER
         if timeFrame     == 'non_growing_season':
-            varCONTROL   = ALTcontrolNGS
-            varFEEDBACK  = ALTariseNGS
+            varCONTROL   = controlNGS
+            varFEEDBACK  = ariseNGS
         lenTime          = 1*(numYears-1)
         numUnits         = 29
-    else:
-        timeStartControl = int(np.abs(2035-ALTcontrolANN[ens[0]].year).argmin())
-        timeEndFeedback  = int(np.abs(2064-ALTariseANN[ens[0]].year).argmin())
-        if timeFrame     == 'annual':
-            varCONTROL   = ALTcontrolANN
-            varFEEDBACK  = ALTariseANN
-        elif timeFrame   == 'growing_season':
-            varCONTROL   = ALTcontrolGS
-            varFEEDBACK  = ALTariseGS
-        elif timeFrame   == 'spring':
-            varCONTROL   = ALTcontrolSPRING
-            varFEEDBACK  = ALTariseSPRING
-        elif timeFrame   == 'summer':
-            varCONTROL   = ALTcontrolSUMMER
-            varFEEDBACK  = ALTariseSUMMER
-        elif timeFrame   == 'fall':
-            varCONTROL   = ALTcontrolFALL
-            varFEEDBACK  = ALTariseFALL
-        elif timeFrame   == 'feb':
-            varCONTROL   = ALTcontrolFEB
-            varFEEDBACK  = ALTariseFEB
-        elif timeFrame   == 'march':
-            varCONTROL   = ALTcontrolMARCH
-            varFEEDBACK  = ALTariseMARCH
-        elif timeFrame   == 'april':
-            varCONTROL   = ALTcontrolAPRIL
-            varFEEDBACK  = ALTariseAPRIL
-        elif timeFrame   == 'may':
-            varCONTROL   = ALTcontrolMAY
-            varFEEDBACK  = ALTariseMAY
-        elif timeFrame   == 'june':
-            varCONTROL   = ALTcontrolJUNE
-            varFEEDBACK  = ALTariseJUNE
-        elif timeFrame   == 'july':
-            varCONTROL   = ALTcontrolJULY
-            varFEEDBACK  = ALTariseJULY
-        elif timeFrame   == 'august':
-            varCONTROL   = ALTcontrolAUG
-            varFEEDBACK  = ALTariseAUG
-        elif timeFrame   == 'september':
-            varCONTROL   = ALTcontrolSEPT
-            varFEEDBACK  = ALTariseSEPT
-        elif timeFrame   == 'october':
-            varCONTROL   = ALTcontrolOCT
-            varFEEDBACK  = ALTariseOCT
-        elif timeFrame   == 'november':
-            varCONTROL   = ALTcontrolNOV
-            varFEEDBACK  = ALTariseNOV
-        elif timeFrame   == 'december':
-            varCONTROL   = ALTcontrolDEC
-            varFEEDBACK  = ALTariseDEC
+    elif timeFrame == 'annual':
+        if var == 'ALT':
+            timeStartControl = int(np.abs(2035-controlANN[ens[0]].year).argmin())
+            timeEndFeedback  = int(np.abs(2064-ariseANN[ens[0]].year).argmin())
+            varCONTROL   = controlANN
+            varFEEDBACK  = ariseANN
+        elif var == 'ER':
+            timeStartControl = int(np.abs(2035-control[ens[0]].year).argmin())
+            timeEndFeedback  = int(np.abs(2064-arise[ens[0]].year).argmin())
+            varCONTROL = control
+            varFEEDBACK = arise
         lenTime          = 1*numYears
         numUnits         = 30 # number of total years
-     
+    else:
+        timeStartControl = int(np.abs(2035-controlANN[ens[0]].year).argmin())
+        timeEndFeedback  = int(np.abs(2064-ariseANN[ens[0]].year).argmin()) 
+        if timeFrame   == 'growing_season':
+            varCONTROL   = controlGS
+            varFEEDBACK  = ariseGS
+        elif timeFrame   == 'spring':
+            varCONTROL   = controlSPRING
+            varFEEDBACK  = ariseSPRING
+        elif timeFrame   == 'summer':
+            varCONTROL   = controlSUMMER
+            varFEEDBACK  = ariseSUMMER
+        elif timeFrame   == 'fall':
+            varCONTROL   = controlFALL
+            varFEEDBACK  = ariseFALL
+        elif timeFrame   == 'feb':
+            varCONTROL   = controlFEB
+            varFEEDBACK  = ariseFEB
+        elif timeFrame   == 'march':
+            varCONTROL   = controlMARCH
+            varFEEDBACK  = ariseMARCH
+        elif timeFrame   == 'april':
+            varCONTROL   = controlAPRIL
+            varFEEDBACK  = ariseAPRIL
+        elif timeFrame   == 'may':
+            varCONTROL   = controlMAY
+            varFEEDBACK  = ariseMAY
+        elif timeFrame   == 'june':
+            varCONTROL   = controlJUNE
+            varFEEDBACK  = ariseJUNE
+        elif timeFrame   == 'july':
+            varCONTROL   = controlJULY
+            varFEEDBACK  = ariseJULY
+        elif timeFrame   == 'august':
+            varCONTROL   = controlAUG
+            varFEEDBACK  = ariseAUG
+        elif timeFrame   == 'september':
+            varCONTROL   = controlSEPT
+            varFEEDBACK  = ariseSEPT
+        elif timeFrame   == 'october':
+            varCONTROL   = controlOCT
+            varFEEDBACK  = ariseOCT
+        elif timeFrame   == 'november':
+            varCONTROL   = controlNOV
+            varFEEDBACK  = ariseNOV
+        elif timeFrame   == 'december':
+            varCONTROL   = controlDEC
+            varFEEDBACK  = ariseDEC
+        lenTime          = 1*numYears
+        numUnits         = 30 # number of total years
+   
     # CONTROL
     featuresC = []
     for ensNum in range(len(ens)):
+        print(varCONTROL[ens[ensNum]]) 
         if timeFrame == 'winter' or timeFrame == 'non_growing_season':
             temp = np.stack(varCONTROL[ens[ensNum]][timeStartControl:,29:-6,:].astype('float'))
         else:
@@ -187,13 +201,21 @@ def preprocessDataForPrediction(timeFrame):
     
     # ## ------ Map of last time step's active layer depth ------ ##
     from plottingFunctions import make_maps, get_colormap
-    brbg_cmap,rdbu_cmap,jet,magma = get_colormap(21)
-    fig,ax = make_maps(varCONTROL[ens[testNum]][-1,29:-6,:],lat[29:-6],lon,
-                        0,20,21,magma,'depth (m)','ALT for control '+str(timeFrame),'LR_active_layer_map_CONTROL_'+str(timeFrame))
-    fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:],lat[29:-6],lon,
-                        0,20,21,magma,'depth (m)','ALT for feedback '+str(timeFrame),'LR_active_layer_map_FEEDBACK_'+str(timeFrame))
-    fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:]),lat[29:-6],lon,
-                       -4,4,17,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
+    if var == 'ALT':
+        fig,ax = make_maps(varCONTROL[ens[testNum]][-1,29:-6,:],lat[29:-6],lon,
+                            0,20,21,magma,'depth (m)','ALT for control '+str(timeFrame),'LR_active_layer_map_CONTROL_'+str(timeFrame))
+        fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:],lat[29:-6],lon,
+                            0,20,21,magma,'depth (m)','ALT for feedback '+str(timeFrame),'LR_active_layer_map_FEEDBACK_'+str(timeFrame))
+        fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:]),lat[29:-6],lon,
+                           -4,4,17,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    elif var == 'ER':
+        fig,ax = make_maps(varCONTROL[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
+                            0,100,51,reds,'cumulative emissions (kgC/m2)','ER for control '+str(timeFrame),'LR_respiration_map_CONTROL_'+str(timeFrame))
+        fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
+                            0,100,51,reds,'cumulative emissions (kgC/m2)','ER for feedback '+str(timeFrame),'LR_respiration_map_FEEDBACK_'+str(timeFrame))
+        fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:])/1000.,lat[29:-6],lon,
+                           -10,10,21,rdbu_cmap,'rate (kgC/m2)','ER difference for '+str(timeFrame)+' SSP - ARISE','LR_respiration_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
     # fig,ax = make_maps((features_test[0,-10,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
     #                    -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feature_train_diff_'+str(timeFrame))
     # fig,ax = make_maps((features_test[1,-5,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,

@@ -18,16 +18,15 @@ def growing_season(month):
     return (month >= 4) & (month <= 9)
 
 
-def readData(datadir, var, control):
+def readData(datadir, var, controlSim):
     import xarray as xr
     import pandas as pd
     import numpy as np
 
     '''
-    Can use mean maps of annual (ANN), growing season 
-    (April-September, GS), non-growing season (October-March, NGS),
-    winter (DJF), spring (MAM), summer (JJA), fall (SON), and each
-    individual month's active layer depths to predict the simluation. 
+    Can use maps for annual (ANN), growing season (April-September, GS), 
+    non-growing season (October-March, NGS),each season, and each
+    individual month to predict the simluation. 
     '''
     myvar = {}
     myvarAnn = {}
@@ -52,119 +51,211 @@ def readData(datadir, var, control):
     numEns = len(ens)
 
     ## ---- SSP2-4.5 ---- ##
-    if control:
+    if controlSim:
         print("reading " + str(var) + " (control)")
-        for i in range(numEns):
-            ds = xr.open_dataset(datadir + '/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM.' + str(ens[i]) +
-                                 '.clm2.h0.' + str(var) + '.201501-206412_NH.nc', decode_times=False)
-            units, reference_date = ds.time.attrs['units'].split('since')
-            ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
-            lat = ds.lat
-            lon = ds.lon
-            time = ds.time
-            '''
-            Soil column only goes to 42m, so CESM2 has no permafrost below
-            42m. Active layer > 39 means CESM2 has no pfrost in that cell
-            '''
-            myvar[ens[i]] = ds[str(var)]
-            myvar[ens[i]] = myvar[ens[i]].where(myvar[ens[i]] <= 39.)
-            ds.close()
-            
-            myvarGS[ens[i]] = myvar[ens[i]].sel(time=growing_season(myvar[ens[i]]['time.month'])).groupby(
-                'time.year').mean(dim='time', skipna=True)
-            myvarAnn[ens[i]] = myvar[ens[i]].groupby('time.year').mean(dim='time', skipna=True)
-            myvarSpring[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'MAM').groupby(
-                'time.year').mean(dim='time', skipna=True)
-            myvarSummer[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'JJA').groupby(
-                'time.year').mean(dim='time', skipna=True)
-            myvarFall[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'SON').groupby('time.year').mean(
-                dim='time', skipna=True)
-            myvarFeb[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 2)
-            myvarMarch[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 3)
-            myvarApril[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 4)
-            myvarMay[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 5)
-            myvarJune[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 6)
-            myvarJuly[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 7)
-            myvarAug[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 8)
-            myvarSept[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 9)
-            myvarOct[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 10)
-            myvarNov[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 11)
-            myvarDec[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 12)   
-            
-            # make winter season
-            years = np.linspace(2015, 2064)
-            myvarWinter[ens[i]] = np.zeros((49, len(lat), len(lon)))
-            for iyear in range(len(years) - 1):
-                myvarWinter[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
-                    time=slice(str(int(years[iyear])) + '-12-01', str(int(years[iyear + 1])) + '-02-28')).mean(
+        if var == 'ALT':
+            for i in range(numEns):
+                ds = xr.open_dataset(datadir + '/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM.' + str(ens[i]) +
+                                     '.clm2.h0.' + str(var) + '.201501-206412_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                lat = ds.lat
+                lon = ds.lon
+                time = ds.time
+                myvar[ens[i]] = ds[str(var)]
+                '''
+                Soil column only goes to 42m, so CESM2 has no permafrost below
+                42m. Active layer > 39 means CESM2 has no pfrost in that cell
+                '''
+                myvar[ens[i]] = myvar[ens[i]].where(myvar[ens[i]] <= 39.)
+                ds.close()
+                myvarGS[ens[i]] = myvar[ens[i]].sel(time=growing_season(myvar[ens[i]]['time.month'])).groupby(
+                    'time.year').mean(dim='time', skipna=True)
+                myvarAnn[ens[i]] = myvar[ens[i]].groupby('time.year').mean(dim='time', skipna=True)
+                myvarSpring[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'MAM').groupby(
+                    'time.year').mean(dim='time', skipna=True)
+                myvarSummer[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'JJA').groupby(
+                    'time.year').mean(dim='time', skipna=True)
+                myvarFall[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'SON').groupby('time.year').mean(
                     dim='time', skipna=True)
-            # make non-growing season
-            myvarNGS[ens[i]] = np.zeros((49, len(lat), len(lon)))
-            for iyear in range(len(years) - 1):
-                myvarNGS[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
-                    time=slice(str(int(years[iyear])) + '-10-01', str(int(years[iyear + 1])) + '-03-31')).mean(
-                    dim='time', skipna=True)                
-        return lat, lon, myvar, myvarGS, myvarNGS, myvarAnn, myvarWinter, myvarSpring, myvarSummer, myvarFall,\
-            myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
-                myvarNov, myvarDec, ens, time
+                myvarFeb[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 2)
+                myvarMarch[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 3)
+                myvarApril[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 4)
+                myvarMay[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 5)
+                myvarJune[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 6)
+                myvarJuly[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 7)
+                myvarAug[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 8)
+                myvarSept[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 9)
+                myvarOct[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 10)
+                myvarNov[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 11)
+                myvarDec[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 12)   
+                
+                # make winter season
+                years = np.linspace(2015, 2064)
+                myvarWinter[ens[i]] = np.zeros((49, len(lat), len(lon)))
+                for iyear in range(len(years) - 1):
+                    myvarWinter[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
+                        time=slice(str(int(years[iyear])) + '-12-01', str(int(years[iyear + 1])) + '-02-28')).mean(
+                        dim='time', skipna=True)
+                # make non-growing season
+                myvarNGS[ens[i]] = np.zeros((49, len(lat), len(lon)))
+                for iyear in range(len(years) - 1):
+                    myvarNGS[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
+                        time=slice(str(int(years[iyear])) + '-10-01', str(int(years[iyear + 1])) + '-03-31')).mean(
+                        dim='time', skipna=True)  
+            return lat, lon, myvar, myvarGS, myvarNGS, myvarAnn, myvarWinter, myvarSpring, myvarSummer, myvarFall,\
+                myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
+                    myvarNov, myvarDec, ens, time
+                
+        elif var == 'ER':
+            for i in range(numEns):
+                ds = xr.open_dataset(datadir + '/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM.' + str(ens[i]) +
+                                     '.clm2.h0.' + str(var) + '.201501-206412_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                lat = ds.lat
+                lon = ds.lon
+                time = ds.time
+                myvar[ens[i]] = ds[str(var)][240:,:,:]
+                '''
+                Cumulative annual soil respiration from 2035 to 2064
+                to see if model can detect a difference in 'irreversible'
+                soil carbon loss
+                1. Multiply monthly mean rate by days in month
+                2. Multiply by seconds per day to get total land emissions
+                3. Sum over year to get annual land emissions
+                4. Cumulative sum over time
+                '''
+                myvar[ens[i]] = myvar[ens[i]] * ds.time.dt.daysinmonth * 86400.
+                myvar[ens[i]] = myvar[ens[i]].groupby('time.year').sum(dim='time',skipna=True)
+                for iyear in range(myvar[ens[i]].shape[0] - 1):
+                    myvar[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
+                ds.close()
+            return lat, lon, myvar, ens, time
+                
+        #     myvarGS[ens[i]] = myvar[ens[i]].sel(time=growing_season(myvar[ens[i]]['time.month'])).groupby(
+        #         'time.year').mean(dim='time', skipna=True)
+        #     myvarAnn[ens[i]] = myvar[ens[i]].groupby('time.year').mean(dim='time', skipna=True)
+        #     myvarSpring[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'MAM').groupby(
+        #         'time.year').mean(dim='time', skipna=True)
+        #     myvarSummer[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'JJA').groupby(
+        #         'time.year').mean(dim='time', skipna=True)
+        #     myvarFall[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'SON').groupby('time.year').mean(
+        #         dim='time', skipna=True)
+        #     myvarFeb[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 2)
+        #     myvarMarch[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 3)
+        #     myvarApril[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 4)
+        #     myvarMay[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 5)
+        #     myvarJune[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 6)
+        #     myvarJuly[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 7)
+        #     myvarAug[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 8)
+        #     myvarSept[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 9)
+        #     myvarOct[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 10)
+        #     myvarNov[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 11)
+        #     myvarDec[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 12)   
+            
+        #     # make winter season
+        #     years = np.linspace(2015, 2064)
+        #     myvarWinter[ens[i]] = np.zeros((49, len(lat), len(lon)))
+        #     for iyear in range(len(years) - 1):
+        #         myvarWinter[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
+        #             time=slice(str(int(years[iyear])) + '-12-01', str(int(years[iyear + 1])) + '-02-28')).mean(
+        #             dim='time', skipna=True)
+        #     # make non-growing season
+        #     myvarNGS[ens[i]] = np.zeros((49, len(lat), len(lon)))
+        #     for iyear in range(len(years) - 1):
+        #         myvarNGS[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
+        #             time=slice(str(int(years[iyear])) + '-10-01', str(int(years[iyear + 1])) + '-03-31')).mean(
+        #             dim='time', skipna=True)                
+        # return lat, lon, myvar, myvarGS, myvarNGS, myvarAnn, myvarWinter, myvarSpring, myvarSummer, myvarFall,\
+        #     myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
+        #         myvarNov, myvarDec, ens, time
+                
             
             
         ## ---- ARISE-SAI-1.5 ---- ##
     else:
         print("reading " + str(var) + " (feedback)")
-        for i in range(numEns):
-            ds = xr.open_dataset(datadir + '/b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT.' + str(ens[i]) +
-                                 '.clm2.h0.' + str(var) + '.203501-206912_NH.nc', decode_times=False)
-            units, reference_date = ds.time.attrs['units'].split('since')
-            ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
-            lat = ds.lat
-            lon = ds.lon
-            time = ds.time
-            '''
-            Soil column only goes to 42m, so CESM2 has no permafrost below
-            42m. Active layer > 39 means CESM2 has no pfrost in that cell
-            '''
-            myvar[ens[i]] = ds[str(var)]
-            myvar[ens[i]] = myvar[ens[i]].where(myvar[ens[i]] <= 39.)
-            ds.close()
+        if var == 'ALT':
+            for i in range(numEns):
+                ds = xr.open_dataset(datadir + '/b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT.' + str(ens[i]) +
+                                     '.clm2.h0.' + str(var) + '.203501-206912_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                lat = ds.lat
+                lon = ds.lon
+                time = ds.time
+                myvar[ens[i]] = ds[str(var)]
+                '''
+                Soil column only goes to 42m, so CESM2 has no permafrost below
+                42m. Active layer > 39 means CESM2 has no pfrost in that cell
+                '''
+                myvar[ens[i]] = myvar[ens[i]].where(myvar[ens[i]] <= 39.)
+                ds.close()
             
-            myvarGS[ens[i]] = myvar[ens[i]].sel(time=growing_season(myvar[ens[i]]['time.month'])).groupby(
-                'time.year').mean(dim='time', skipna=True)
-            myvarAnn[ens[i]] = myvar[ens[i]].groupby('time.year').mean(dim='time', skipna=True)
-            myvarSpring[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'MAM').groupby(
-                'time.year').mean(dim='time', skipna=True)
-            myvarSummer[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'JJA').groupby(
-                'time.year').mean(dim='time', skipna=True)
-            myvarFall[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'SON').groupby('time.year').mean(
-                dim='time', skipna=True)
-            myvarFeb[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 2)
-            myvarMarch[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 3)
-            myvarApril[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 4)
-            myvarMay[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 5)
-            myvarJune[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 6)
-            myvarJuly[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 7)
-            myvarAug[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 8)
-            myvarSept[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 9)
-            myvarOct[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 10)
-            myvarNov[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 11)
-            myvarDec[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 12)  
-            
-            # make winter season
-            years = np.linspace(2035, 2069, 35)
-            myvarWinter[ens[i]] = np.zeros((34, len(lat), len(lon)))
-            for iyear in range(len(years) - 1):
-                myvarWinter[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
-                    time=slice(str(int(years[iyear])) + '-12-01', str(int(years[iyear + 1])) + '-02-28')).mean(
+                myvarGS[ens[i]] = myvar[ens[i]].sel(time=growing_season(myvar[ens[i]]['time.month'])).groupby(
+                    'time.year').mean(dim='time', skipna=True)
+                myvarAnn[ens[i]] = myvar[ens[i]].groupby('time.year').mean(dim='time', skipna=True)
+                myvarSpring[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'MAM').groupby(
+                    'time.year').mean(dim='time', skipna=True)
+                myvarSummer[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'JJA').groupby(
+                    'time.year').mean(dim='time', skipna=True)
+                myvarFall[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'SON').groupby('time.year').mean(
                     dim='time', skipna=True)
-            # make non-growing season
-            myvarNGS[ens[i]] = np.zeros((49, len(lat), len(lon)))
-            for iyear in range(len(years) - 1):
-                myvarNGS[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
-                    time=slice(str(int(years[iyear])) + '-10-01', str(int(years[iyear + 1])) + '-03-31')).mean(
-                    dim='time', skipna=True)          
-        return lat, lon, myvar, myvarGS, myvarNGS, myvarAnn, myvarWinter, myvarSpring, myvarSummer, myvarFall,\
-            myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
-                myvarNov, myvarDec, ens, time
+                myvarFeb[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 2)
+                myvarMarch[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 3)
+                myvarApril[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 4)
+                myvarMay[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 5)
+                myvarJune[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 6)
+                myvarJuly[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 7)
+                myvarAug[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 8)
+                myvarSept[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 9)
+                myvarOct[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 10)
+                myvarNov[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 11)
+                myvarDec[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 12)  
+                
+                # make winter season
+                years = np.linspace(2035, 2069, 35)
+                myvarWinter[ens[i]] = np.zeros((34, len(lat), len(lon)))
+                for iyear in range(len(years) - 1):
+                    myvarWinter[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
+                        time=slice(str(int(years[iyear])) + '-12-01', str(int(years[iyear + 1])) + '-02-28')).mean(
+                        dim='time', skipna=True)
+                # make non-growing season
+                myvarNGS[ens[i]] = np.zeros((49, len(lat), len(lon)))
+                for iyear in range(len(years) - 1):
+                    myvarNGS[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
+                        time=slice(str(int(years[iyear])) + '-10-01', str(int(years[iyear + 1])) + '-03-31')).mean(
+                        dim='time', skipna=True)          
+            return lat, lon, myvar, myvarGS, myvarNGS, myvarAnn, myvarWinter, myvarSpring, myvarSummer, myvarFall,\
+                myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
+                    myvarNov, myvarDec, ens, time
+                    
+        elif var == 'ER':
+            for i in range(numEns):
+                ds = xr.open_dataset(datadir + '/b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT.' + str(ens[i]) +
+                                     '.clm2.h0.' + str(var) + '.203501-206912_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                lat = ds.lat
+                lon = ds.lon
+                time = ds.time
+                myvar[ens[i]] = ds[str(var)]
+                '''
+                Cumulative annual soil respiration from 2035 to 2064
+                to see if model can detect a difference in 'irreversible'
+                soil carbon loss
+                1. Multiply monthly mean rate by days in month
+                2. Multiply by seconds per day to get total land emissions
+                3. Sum over year to get annual land emissions
+                4. Cumulative sum over time
+                '''
+                myvar[ens[i]] = myvar[ens[i]] * myvar[ens[i]].time.dt.daysinmonth * 86400.
+                myvar[ens[i]] = myvar[ens[i]].groupby('time.year').sum(dim='time',skipna=True)
+                for iyear in range(myvar[ens[i]].shape[0] - 1):
+                    myvar[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
+                ds.close()
+            return lat, lon, myvar, ens, time
 
 
 def read_historical(var):

@@ -31,7 +31,8 @@ def get_colormap(levs):
     ## rainbow
     jet = cm.get_cmap('turbo', (levs))
     magma = cm.get_cmap('magma', (levs))
-    return brbg_cmap,rdbu_cmap,jet,magma
+    reds = cm.get_cmap('Reds',(levs))
+    return brbg_cmap,rdbu_cmap,jet,magma,reds
 
 
 def make_maps(var,latitude,longitude,vmins,vmaxs,levs,mycmap,label,title,savetitle):

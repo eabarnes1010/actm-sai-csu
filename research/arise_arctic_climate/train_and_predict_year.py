@@ -27,9 +27,10 @@ np.random.seed(99)
 tf.random.set_seed(99)
 
 ## ------ Choose parameters ------ ##
-timeFrame   = 'feb'
+timeFrame   = 'annual'
+var = 'ER'
 batch_size  = 28
-epochs      = 6
+epochs      = 3 # 6 is good for ALT
 verbose     = 2
 lr          = 0.006
 singleLayer = True
@@ -39,7 +40,7 @@ l1, l2      = 0.015,0.8
 
 ## ------ Get processed training and test data ------ ##
 lat,lon,features_train,features_val,features_test,\
-    labels_train,labels_val,labels_test,lenTime = preprocessDataForPrediction(str(timeFrame))
+    labels_train,labels_val,labels_test,lenTime = preprocessDataForPrediction(str(timeFrame),str(var))
 ## ---------------------------------------------------- ## 
 
 ## ------ Categorical labels ------ ##
@@ -189,7 +190,8 @@ else:
 plt.axhline(0.5,0,lenTime,linestyle='-.',color='k',linewidth=0.7)
 plt.xlabel('time')
 plt.legend(loc='lower right')
-plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_confidence_'+str(timeFrame)+'.jpg')
+plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_confidence_'\
+            +str(timeFrame)+'_'+str(var)+'.jpg')
 plt.show()
 ## ----------------------------------- ##
 
@@ -230,7 +232,8 @@ ax2.set_yticks([0,1])
 ax2.set_yticklabels(['False','True'], fontweight='bold')
 ax1.set_yticks([0,1]) 
 ax1.set_yticklabels(['False','True'], fontweight='bold')
-plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_accuracy_'+str(timeFrame)+'.jpg', bbox_inches='tight'); plt.show()
+plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_accuracy_'\
+            +str(timeFrame)+'_'+str(var)+'.jpg', bbox_inches='tight'); plt.show()
 ## ------------------------------ ##
 
 ## ------ Summarize history for loss ------ ##
@@ -241,7 +244,8 @@ plt.title('model loss ' + '(' + str(timeFrame) + ')', fontsize=11)
 plt.ylabel('loss'); plt.xlabel('epoch')
 ymax = np.nanmax([np.nanmax(history.history['val_loss']), np.nanmax(history.history['loss'])])
 plt.legend(['train', 'val'], loc='upper right')
-plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/train_val_loss_'+str(timeFrame)+'.jpg'); plt.show()
+plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/train_val_loss_'\
+            +str(timeFrame)+'_'+str(var)+'.jpg'); plt.show()
 ## ---------------------------------------- ## 
 '''
 First number is likelihood of map coming from first column of testing data,
@@ -252,12 +256,12 @@ First 20 numbers = control, second 20 = arise
 ## ------ Map of weights ------ ##
 if singleLayer:
     from plottingFunctions import get_colormap, make_maps
-    brbg_cmap,rdbu_cmap,jet,magma = get_colormap(21)
+    brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
     mapWeights = (model.layers[0].get_weights()[0].reshape(lenLat,lenLon))
     fig,ax = make_maps(mapWeights,lat[29:-6],lon,
                         -0.03,0.03,21,brbg_cmap,
                         'weights','weights for '+str(timeFrame),
-                        'weights_'+str(timeFrame))
+                        'weights_'+str(timeFrame)+'_'+str(var))
     # mapWeights = model.layers[0].get_weights()[0][:,1].reshape(lenLat,lenLon)
     # fig,ax = make_maps(mapWeights,lat[29:-6],lon,
     #                     -0.02,0.02,21,brbg_cmap,'weights','weights for '+str(timeFrame)+', control','feedback_weights_'+str(timeFrame))
