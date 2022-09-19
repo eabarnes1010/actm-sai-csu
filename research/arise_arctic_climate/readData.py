@@ -108,6 +108,7 @@ def readData(datadir, var, controlSim):
                     myvarNov, myvarDec, ens, time
                 
         elif var == 'ER':
+            myvarCum = {}
             for i in range(numEns):
                 ds = xr.open_dataset(datadir + '/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM.' + str(ens[i]) +
                                      '.clm2.h0.' + str(var) + '.201501-206412_NH.nc', decode_times=False)
@@ -128,10 +129,13 @@ def readData(datadir, var, controlSim):
                 '''
                 myvar[ens[i]] = myvar[ens[i]] * ds.time.dt.daysinmonth * 86400.
                 myvar[ens[i]] = myvar[ens[i]].groupby('time.year').sum(dim='time',skipna=True)
-                for iyear in range(myvar[ens[i]].shape[0] - 1):
-                    myvar[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
+                myvarCum[ens[i]] = np.zeros((myvar[ens[i]].shape[0],myvar[ens[i]].shape[1],
+                                             myvar[ens[i]].shape[2]))
+                myvarCum[ens[i]][0,:,:] = myvar[ens[i]][0,:,:]
+                for iyear in range(myvarCum[ens[i]].shape[0] - 1):
+                    myvarCum[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
                 ds.close()
-            return lat, lon, myvar, ens, time
+            return lat, lon, myvarCum, ens, time
                 
         #     myvarGS[ens[i]] = myvar[ens[i]].sel(time=growing_season(myvar[ens[i]]['time.month'])).groupby(
         #         'time.year').mean(dim='time', skipna=True)
@@ -232,6 +236,7 @@ def readData(datadir, var, controlSim):
                     myvarNov, myvarDec, ens, time
                     
         elif var == 'ER':
+            myvarCum = {}
             for i in range(numEns):
                 ds = xr.open_dataset(datadir + '/b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT.' + str(ens[i]) +
                                      '.clm2.h0.' + str(var) + '.203501-206912_NH.nc', decode_times=False)
@@ -240,7 +245,7 @@ def readData(datadir, var, controlSim):
                 lat = ds.lat
                 lon = ds.lon
                 time = ds.time
-                myvar[ens[i]] = ds[str(var)]
+                myvar[ens[i]] = ds[str(var)][:-60,:,:]
                 '''
                 Cumulative annual soil respiration from 2035 to 2064
                 to see if model can detect a difference in 'irreversible'
@@ -252,10 +257,13 @@ def readData(datadir, var, controlSim):
                 '''
                 myvar[ens[i]] = myvar[ens[i]] * myvar[ens[i]].time.dt.daysinmonth * 86400.
                 myvar[ens[i]] = myvar[ens[i]].groupby('time.year').sum(dim='time',skipna=True)
-                for iyear in range(myvar[ens[i]].shape[0] - 1):
-                    myvar[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
+                myvarCum[ens[i]] = np.zeros((myvar[ens[i]].shape[0],myvar[ens[i]].shape[1],
+                                             myvar[ens[i]].shape[2]))
+                myvarCum[ens[i]][0,:,:] = myvar[ens[i]][0,:,:]
+                for iyear in range(myvarCum[ens[i]].shape[0] - 1):
+                    myvarCum[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
                 ds.close()
-            return lat, lon, myvar, ens, time
+            return lat, lon, myvarCum, ens, time
 
 
 def read_historical(var):

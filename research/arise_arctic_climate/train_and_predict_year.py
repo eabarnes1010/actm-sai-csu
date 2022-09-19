@@ -30,13 +30,17 @@ tf.random.set_seed(99)
 timeFrame   = 'annual'
 var = 'ER'
 batch_size  = 28
-epochs      = 3 # 6 is good for ALT
 verbose     = 2
-lr          = 0.006
 singleLayer = True
 denseShape  = 28
 dropout     = 0.25
 l1, l2      = 0.015,0.8
+if var == 'ALT':
+    epochs  = 6
+    lr      = 0.006
+else:
+    epochs  = 3
+    lr      = 0.01
 
 ## ------ Get processed training and test data ------ ##
 lat,lon,features_train,features_val,features_test,\

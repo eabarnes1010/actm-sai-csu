@@ -60,8 +60,8 @@ def preprocessDataForPrediction(timeFrame,var):
             varCONTROL   = controlANN
             varFEEDBACK  = ariseANN
         elif var == 'ER':
-            timeStartControl = int(np.abs(2035-control[ens[0]].year).argmin())
-            timeEndFeedback  = int(np.abs(2064-arise[ens[0]].year).argmin())
+            timeStartControl = 0#int(np.abs(2035-control[ens[0]].year).argmin())
+            timeEndFeedback  = 29#int(np.abs(2064-arise[ens[0]].year).argmin())
             varCONTROL = control
             varFEEDBACK = arise
         lenTime          = 1*numYears
@@ -120,11 +120,13 @@ def preprocessDataForPrediction(timeFrame,var):
     # CONTROL
     featuresC = []
     for ensNum in range(len(ens)):
-        print(varCONTROL[ens[ensNum]]) 
         if timeFrame == 'winter' or timeFrame == 'non_growing_season':
             temp = np.stack(varCONTROL[ens[ensNum]][timeStartControl:,29:-6,:].astype('float'))
         else:
-            temp = np.stack(varCONTROL[ens[ensNum]][timeStartControl:,29:-6,:].values.astype('float'))
+            if var == 'ALT':
+                temp = np.stack(varCONTROL[ens[ensNum]][timeStartControl:,29:-6,:].values.astype('float'))
+            else:
+                temp = np.stack(varCONTROL[ens[ensNum]][:,29:-6,:].astype('float'))
         featuresC.append(temp)
     del temp
     
@@ -134,14 +136,17 @@ def preprocessDataForPrediction(timeFrame,var):
         if timeFrame == 'winter' or timeFrame == 'non_growing_season':
             temp = np.stack(varFEEDBACK[ens[ensNum]][:timeEndFeedback+1,29:-6,:].astype('float'))
         else:
-            temp = np.stack(varFEEDBACK[ens[ensNum]][:timeEndFeedback+1,29:-6,:].values.astype('float'))
+            if var == 'ALT':
+                temp = np.stack(varFEEDBACK[ens[ensNum]][:timeEndFeedback+1,29:-6,:].values.astype('float'))
+            else:
+                temp = np.stack(varFEEDBACK[ens[ensNum]][:,29:-6,:].astype('float'))
         featuresF.append(temp)
     del temp
     ## ---------------------------------------------------- ##
     
     ## ------ Split training/test data ------ ##
     from random import sample
-    number_list = [4,6,7,8,9,10,1,2,3]
+    number_list = [1,6,7,8,9,10,2,3,4]
     new_list    = sample(number_list,len(number_list))
     valNum      = 2
     testNum     = 1
@@ -211,11 +216,11 @@ def preprocessDataForPrediction(timeFrame,var):
                            -4,4,17,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
     elif var == 'ER':
         fig,ax = make_maps(varCONTROL[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
-                            0,100,51,reds,'cumulative emissions (kgC/m2)','ER for control '+str(timeFrame),'LR_respiration_map_CONTROL_'+str(timeFrame))
+                            0,5,21,reds,'cumulative emissions (kgC/m2)','ER for control '+str(timeFrame),'LR_respiration_map_CONTROL_'+str(timeFrame))
         fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
-                            0,100,51,reds,'cumulative emissions (kgC/m2)','ER for feedback '+str(timeFrame),'LR_respiration_map_FEEDBACK_'+str(timeFrame))
+                            0,5,21,reds,'cumulative emissions (kgC/m2)','ER for feedback '+str(timeFrame),'LR_respiration_map_FEEDBACK_'+str(timeFrame))
         fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:])/1000.,lat[29:-6],lon,
-                           -10,10,21,rdbu_cmap,'rate (kgC/m2)','ER difference for '+str(timeFrame)+' SSP - ARISE','LR_respiration_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+                           -1,1,21,rdbu_cmap,'rate (kgC/m2)','ER difference for '+str(timeFrame)+' SSP - ARISE','LR_respiration_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
     # fig,ax = make_maps((features_test[0,-10,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
     #                    -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feature_train_diff_'+str(timeFrame))
     # fig,ax = make_maps((features_test[1,-5,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
