@@ -4,8 +4,10 @@ Created on July 21, 2022
 
 @author: Ariel L. Morrison
 
-Function to read in CESM2-WACCM6 (historical), 
+- Function to read in CESM2-WACCM6 (historical), 
 SSP2-4.5 (control) and ARISE-SAI-1.5 (experiment) data
+- Can read in active layer depth (ALT), soil respiration rate
+(ER) or net ecosystem exchange (NEE)
 """
 import os
 
@@ -107,7 +109,7 @@ def readData(datadir, var, controlSim):
                 myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
                     myvarNov, myvarDec, ens, time
                 
-        elif var == 'ER':
+        elif var == 'ER' or var == 'NEE':
             myvarCum = {}
             for i in range(numEns):
                 ds = xr.open_dataset(datadir + '/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM.' + str(ens[i]) +
@@ -136,48 +138,9 @@ def readData(datadir, var, controlSim):
                     myvarCum[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
                 ds.close()
             return lat, lon, myvarCum, ens, time
-                
-        #     myvarGS[ens[i]] = myvar[ens[i]].sel(time=growing_season(myvar[ens[i]]['time.month'])).groupby(
-        #         'time.year').mean(dim='time', skipna=True)
-        #     myvarAnn[ens[i]] = myvar[ens[i]].groupby('time.year').mean(dim='time', skipna=True)
-        #     myvarSpring[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'MAM').groupby(
-        #         'time.year').mean(dim='time', skipna=True)
-        #     myvarSummer[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'JJA').groupby(
-        #         'time.year').mean(dim='time', skipna=True)
-        #     myvarFall[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.season'] == 'SON').groupby('time.year').mean(
-        #         dim='time', skipna=True)
-        #     myvarFeb[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 2)
-        #     myvarMarch[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 3)
-        #     myvarApril[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 4)
-        #     myvarMay[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 5)
-        #     myvarJune[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 6)
-        #     myvarJuly[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 7)
-        #     myvarAug[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 8)
-        #     myvarSept[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 9)
-        #     myvarOct[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 10)
-        #     myvarNov[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 11)
-        #     myvarDec[ens[i]] = myvar[ens[i]].sel(time=myvar[ens[i]]['time.month'] == 12)   
             
-        #     # make winter season
-        #     years = np.linspace(2015, 2064)
-        #     myvarWinter[ens[i]] = np.zeros((49, len(lat), len(lon)))
-        #     for iyear in range(len(years) - 1):
-        #         myvarWinter[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
-        #             time=slice(str(int(years[iyear])) + '-12-01', str(int(years[iyear + 1])) + '-02-28')).mean(
-        #             dim='time', skipna=True)
-        #     # make non-growing season
-        #     myvarNGS[ens[i]] = np.zeros((49, len(lat), len(lon)))
-        #     for iyear in range(len(years) - 1):
-        #         myvarNGS[ens[i]][iyear:(iyear + 1), :, :] = myvar[ens[i]].sel(
-        #             time=slice(str(int(years[iyear])) + '-10-01', str(int(years[iyear + 1])) + '-03-31')).mean(
-        #             dim='time', skipna=True)                
-        # return lat, lon, myvar, myvarGS, myvarNGS, myvarAnn, myvarWinter, myvarSpring, myvarSummer, myvarFall,\
-        #     myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
-        #         myvarNov, myvarDec, ens, time
-                
-            
-            
-        ## ---- ARISE-SAI-1.5 ---- ##
+        
+    ## ---- ARISE-SAI-1.5 ---- ##
     else:
         print("reading " + str(var) + " (feedback)")
         if var == 'ALT':
@@ -235,7 +198,7 @@ def readData(datadir, var, controlSim):
                 myvarFeb, myvarMarch, myvarApril, myvarMay, myvarJune, myvarJuly, myvarAug, myvarSept, myvarOct,\
                     myvarNov, myvarDec, ens, time
                     
-        elif var == 'ER':
+        elif var == 'ER' or var == 'NEE':
             myvarCum = {}
             for i in range(numEns):
                 ds = xr.open_dataset(datadir + '/b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT.' + str(ens[i]) +

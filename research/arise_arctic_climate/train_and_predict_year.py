@@ -28,7 +28,7 @@ tf.random.set_seed(99)
 
 ## ------ Choose parameters ------ ##
 timeFrame   = 'annual'
-var = 'ER'
+var = 'NEE'
 batch_size  = 28
 verbose     = 2
 singleLayer = True
@@ -40,7 +40,7 @@ if var == 'ALT':
     lr      = 0.006
 else:
     epochs  = 3
-    lr      = 0.01
+    lr      = 0.006
 
 ## ------ Get processed training and test data ------ ##
 lat,lon,features_train,features_val,features_test,\
@@ -130,11 +130,18 @@ else:
                     kernel_initializer = tf.keras.initializers.LecunNormal(seed=rseed)))
 
 ''' Schedule a decreasing learning rate '''
+# if var == 'ALT':
 def scheduler(epoch, lr):
     if epoch < 1 or epoch > 15:
         return lr
     else:
         return lr/2.
+# else:
+#     def scheduler(epoch, lr):
+#         if epoch < 1:
+#             return lr
+#         else:
+#             return lr/4.
     
 ## ------ Compile the model ------ ##   
 model.compile(optimizer = optimizers.SGD(learning_rate=lr, 

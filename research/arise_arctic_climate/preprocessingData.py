@@ -23,7 +23,7 @@ def preprocessDataForPrediction(timeFrame,var):
             ariseSUMMER,ariseFALL,ariseFEB,ariseMARCH,ariseAPRIL,ariseMAY,\
                 ariseJUNE,ariseJULY,ariseAUG,ariseSEPT,ariseOCT,ariseNOV,\
                     ariseDEC,ens,timeARISE = readData(datadir,str(var),False)
-    elif var == 'ER':
+    elif var == 'ER' or var == 'NEE':
         lat,lon,control,ens,timeCONTROL = readData(datadir,str(var),True)
         lat,lon,arise,ens,timeARISE = readData(datadir,str(var),False)
     ## ---------------------------------------------------- ##
@@ -59,7 +59,7 @@ def preprocessDataForPrediction(timeFrame,var):
             timeEndFeedback  = int(np.abs(2064-ariseANN[ens[0]].year).argmin())
             varCONTROL   = controlANN
             varFEEDBACK  = ariseANN
-        elif var == 'ER':
+        elif var == 'ER' or var == 'NEE':
             timeStartControl = 0#int(np.abs(2035-control[ens[0]].year).argmin())
             timeEndFeedback  = 29#int(np.abs(2064-arise[ens[0]].year).argmin())
             varCONTROL = control
@@ -146,7 +146,7 @@ def preprocessDataForPrediction(timeFrame,var):
     
     ## ------ Split training/test data ------ ##
     from random import sample
-    number_list = [1,6,7,8,9,10,2,3,4]
+    number_list = [1,2,6,7,8,9,10,3,4]
     new_list    = sample(number_list,len(number_list))
     valNum      = 2
     testNum     = 1
@@ -213,22 +213,21 @@ def preprocessDataForPrediction(timeFrame,var):
         fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:],lat[29:-6],lon,
                             0,20,21,magma,'depth (m)','ALT for feedback '+str(timeFrame),'LR_active_layer_map_FEEDBACK_'+str(timeFrame))
         fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:]),lat[29:-6],lon,
-                           -4,4,17,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+                            -4,4,17,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
     elif var == 'ER':
         fig,ax = make_maps(varCONTROL[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
                             0,5,21,reds,'cumulative emissions (kgC/m2)','ER for control '+str(timeFrame),'LR_respiration_map_CONTROL_'+str(timeFrame))
         fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
                             0,5,21,reds,'cumulative emissions (kgC/m2)','ER for feedback '+str(timeFrame),'LR_respiration_map_FEEDBACK_'+str(timeFrame))
         fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:])/1000.,lat[29:-6],lon,
-                           -1,1,21,rdbu_cmap,'rate (kgC/m2)','ER difference for '+str(timeFrame)+' SSP - ARISE','LR_respiration_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
-    # fig,ax = make_maps((features_test[0,-10,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
-    #                    -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feature_train_diff_'+str(timeFrame))
-    # fig,ax = make_maps((features_test[1,-5,:,:] - features_test[1,-10,:,:]),lat[29:-6],lon,
-    #                    -5,5,21,rdbu_cmap,'depth (m)','ALT difference for '+str(timeFrame),'LR_active_layer_map_feedback_diff_'+str(timeFrame))
-    # fig,ax = make_maps(features_test[0,-10,:,:],lat[29:-6],lon,
-    #                    -5,5,21,rdbu_cmap,'depth (m)','feature_test for control '+str(timeFrame),'LR_active_layer_map_feature_test_control_'+str(timeFrame))
-    # fig,ax = make_maps(features_test[1,-10,:,:],lat[29:-6],lon,
-    #                    -5,5,21,rdbu_cmap,'depth (m)','feature_test for feedback '+str(timeFrame),'LR_active_layer_map_feature_test_feedback_'+str(timeFrame))
+                            -1,1,21,rdbu_cmap,'rate (kgC/m2)','ER difference for '+str(timeFrame)+' SSP - ARISE','LR_respiration_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    elif var == 'NEE':
+        fig,ax = make_maps(varCONTROL[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
+                            0,0.1,21,reds,'cumulative exchange (kgC/m2)','NEE for control '+str(timeFrame),'LR_co2_exchange_map_CONTROL_'+str(timeFrame))
+        fig,ax = make_maps(varFEEDBACK[ens[testNum]][-1,29:-6,:]/1000.,lat[29:-6],lon,
+                            0,0.1,21,reds,'cumulative exchange (kgC/m2)','NEE for feedback '+str(timeFrame),'LR_co2_exchange_map_FEEDBACK_'+str(timeFrame))
+        fig,ax = make_maps((varCONTROL[ens[testNum]][-1,29:-6,:] - varFEEDBACK[ens[testNum]][-1,29:-6,:])/1000.,lat[29:-6],lon,
+                            -0.5,0.5,21,rdbu_cmap,'rate (kgC/m2)','NEE difference for '+str(timeFrame)+' SSP - ARISE','LR_co2_exchange_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
     
     del fig, ax
     # ## ----------------------------- ##
