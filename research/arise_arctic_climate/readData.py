@@ -118,26 +118,34 @@ def readData(datadir, var, controlSim):
                 ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
                 lat = ds.lat
                 lon = ds.lon
-                time = ds.time
+                time = ds.time[240:]
                 myvar[ens[i]] = ds[str(var)][240:,:,:]
-                '''
-                Cumulative annual soil respiration from 2035 to 2064
-                to see if model can detect a difference in 'irreversible'
-                soil carbon loss
-                1. Multiply monthly mean rate by days in month
-                2. Multiply by seconds per day to get total land emissions
-                3. Sum over year to get annual land emissions
-                4. Cumulative sum over time
-                '''
+                ds.close()
+                # active layer depth to mask for permafrost
+                ds = xr.open_dataset(datadir + '/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM.' + str(ens[i]) +
+                                     '.clm2.h0.ALTMAX.201501-206412_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                ALTMAX = (ds.ALTMAX[240:,:,:]).where(ds.ALTMAX[240:,:,:] <= 39.).groupby('time.year').mean(dim='time',skipna=True)
+                ds.close()
+                myvar[ens[i]] = (myvar[ens[i]] * time.dt.daysinmonth * 86400.).groupby('time.year').sum(dim='time',skipna=True)
+                myvarCum[ens[i]] = (myvar[ens[i]].cumsum(axis=0)).where(ALTMAX.notnull())
+            return lat, lon, myvarCum, ens, time
+        
+        elif var == 'GPP':
+            for i in range(numEns):
+                ds = xr.open_dataset(datadir + '/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM.' + str(ens[i]) +
+                                      '.clm2.h0.' + str(var) + '.201501-206412_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                lat = ds.lat
+                lon = ds.lon
+                time = ds.time[240:]
+                myvar[ens[i]] = ds[str(var)][240:,:,:]
                 myvar[ens[i]] = myvar[ens[i]] * ds.time.dt.daysinmonth * 86400.
                 myvar[ens[i]] = myvar[ens[i]].groupby('time.year').sum(dim='time',skipna=True)
-                myvarCum[ens[i]] = np.zeros((myvar[ens[i]].shape[0],myvar[ens[i]].shape[1],
-                                             myvar[ens[i]].shape[2]))
-                myvarCum[ens[i]][0,:,:] = myvar[ens[i]][0,:,:]
-                for iyear in range(myvarCum[ens[i]].shape[0] - 1):
-                    myvarCum[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
                 ds.close()
-            return lat, lon, myvarCum, ens, time
+            return lat, lon, myvar, ens, time
             
         
     ## ---- ARISE-SAI-1.5 ---- ##
@@ -207,26 +215,34 @@ def readData(datadir, var, controlSim):
                 ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
                 lat = ds.lat
                 lon = ds.lon
+                time = ds.time[:-60]
+                myvar[ens[i]] = ds[str(var)][:-60,:,:]
+                ds.close()
+                # active layer depth to mask for permafrost
+                ds = xr.open_dataset(datadir + '/b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT.' + str(ens[i]) +
+                                     '.clm2.h0.ALTMAX.203501-206912_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                ALTMAX = (ds.ALTMAX[:-60,:,:]).where(ds.ALTMAX[:-60,:,:] <= 39.).groupby('time.year').mean(dim='time',skipna=True)
+                ds.close()
+                myvar[ens[i]] = (myvar[ens[i]] * time.dt.daysinmonth * 86400.).groupby('time.year').sum(dim='time',skipna=True)
+                myvarCum[ens[i]] = (myvar[ens[i]].cumsum(axis=0)).where(ALTMAX.notnull())
+            return lat, lon, myvarCum, ens, time
+        
+        elif var == 'GPP':
+            for i in range(numEns):
+                ds = xr.open_dataset(datadir + '/b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT.' + str(ens[i]) +
+                                      '.clm2.h0.' + str(var) + '.203501-206912_NH.nc', decode_times=False)
+                units, reference_date = ds.time.attrs['units'].split('since')
+                ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
+                lat = ds.lat
+                lon = ds.lon
                 time = ds.time
                 myvar[ens[i]] = ds[str(var)][:-60,:,:]
-                '''
-                Cumulative annual soil respiration from 2035 to 2064
-                to see if model can detect a difference in 'irreversible'
-                soil carbon loss
-                1. Multiply monthly mean rate by days in month
-                2. Multiply by seconds per day to get total land emissions
-                3. Sum over year to get annual land emissions
-                4. Cumulative sum over time
-                '''
                 myvar[ens[i]] = myvar[ens[i]] * myvar[ens[i]].time.dt.daysinmonth * 86400.
                 myvar[ens[i]] = myvar[ens[i]].groupby('time.year').sum(dim='time',skipna=True)
-                myvarCum[ens[i]] = np.zeros((myvar[ens[i]].shape[0],myvar[ens[i]].shape[1],
-                                             myvar[ens[i]].shape[2]))
-                myvarCum[ens[i]][0,:,:] = myvar[ens[i]][0,:,:]
-                for iyear in range(myvarCum[ens[i]].shape[0] - 1):
-                    myvarCum[ens[i]][iyear+1,:,:] = myvar[ens[i]][iyear+1,:,:] + myvar[ens[i]][iyear,:,:]
                 ds.close()
-            return lat, lon, myvarCum, ens, time
+            return lat, lon, myvar, ens, time
 
 
 def read_historical(var):

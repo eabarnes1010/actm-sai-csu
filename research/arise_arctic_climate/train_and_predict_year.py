@@ -22,25 +22,31 @@ from preprocessingData import preprocessDataForPrediction
 import matplotlib.pyplot as plt
 import gc
 
+
 ## ------ random numbers ------ ##
 np.random.seed(99)
 tf.random.set_seed(99)
 
 ## ------ Choose parameters ------ ##
 timeFrame   = 'annual'
-var = 'NEE'
+var = 'ER'
 batch_size  = 28
 verbose     = 2
 singleLayer = True
 denseShape  = 28
 dropout     = 0.25
-l1, l2      = 0.015,0.8
 if var == 'ALT':
     epochs  = 6
     lr      = 0.006
-else:
+    l1, l2  = 0.015,0.8
+elif var == 'NEE' or var == 'GPP':
+    epochs  = 5
+    lr      = 0.08
+    l1, l2  = 0.015,1
+elif var == 'ER':
     epochs  = 3
-    lr      = 0.006
+    lr      = 0.0088
+    l1, l2  = 0.025,0.8
 
 ## ------ Get processed training and test data ------ ##
 lat,lon,features_train,features_val,features_test,\
@@ -67,7 +73,7 @@ y_test  = y_test[:,:lenTime]
 ## ---------------------------------------------------- ## 
 
 ## ------ Flatten data ------ ##
-lenLat = 50; lenLon = 288; 
+lenLat = 49; lenLon = 288; 
 X_train = X_train.reshape(len(X_train)*lenTime,lenLat*lenLon)
 X_val   = X_val.reshape(len(X_val)*lenTime,lenLat*lenLon)
 X_test  = X_test.reshape(len(X_test)*lenTime,lenLat*lenLon)
@@ -130,18 +136,18 @@ else:
                     kernel_initializer = tf.keras.initializers.LecunNormal(seed=rseed)))
 
 ''' Schedule a decreasing learning rate '''
-# if var == 'ALT':
-def scheduler(epoch, lr):
-    if epoch < 1 or epoch > 15:
-        return lr
-    else:
-        return lr/2.
-# else:
-#     def scheduler(epoch, lr):
-#         if epoch < 1:
-#             return lr
-#         else:
-#             return lr/4.
+if var == 'ALT' or var == 'ER':
+    def scheduler(epoch, lr):
+        if epoch < 1 or epoch > 15:
+            return lr
+        else:
+            return lr/2.
+else:
+    def scheduler(epoch, lr):
+        if epoch < 1:
+            return lr
+        else:
+            return lr*0.25
     
 ## ------ Compile the model ------ ##   
 model.compile(optimizer = optimizers.SGD(learning_rate=lr, 
@@ -269,8 +275,12 @@ if singleLayer:
     from plottingFunctions import get_colormap, make_maps
     brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
     mapWeights = (model.layers[0].get_weights()[0].reshape(lenLat,lenLon))
-    fig,ax = make_maps(mapWeights,lat[29:-6],lon,
-                        -0.03,0.03,21,brbg_cmap,
+    if var == 'ER':
+        vmins = -0.01; vmaxs = 0.01
+    else:
+        vmins = -0.04; vmaxs = 0.04
+    fig,ax = make_maps(mapWeights,lat[30:-6],lon,
+                        vmins,vmaxs,21,brbg_cmap,
                         'weights','weights for '+str(timeFrame),
                         'weights_'+str(timeFrame)+'_'+str(var))
     # mapWeights = model.layers[0].get_weights()[0][:,1].reshape(lenLat,lenLon)
