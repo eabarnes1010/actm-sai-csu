@@ -117,37 +117,39 @@ def preprocessDataForPrediction(timeFrame,var):
         lenTime          = 1*numYears
         numUnits         = 30 # number of total years
    
+    ## ---------------------------------------------------- ##
+    from random import sample
+    new_list = sample(ens,len(ens))
+    print('randomized order of ensemble members = ', new_list)
+    
     # CONTROL
     featuresC = []
-    for ensNum in range(len(ens)):
+    for ensNum in range(len(new_list)):
         if timeFrame == 'winter' or timeFrame == 'non_growing_season':
-            temp = np.stack(varCONTROL[ens[ensNum]][timeStartControl:,30:-6,:].astype('float'))
+            temp = np.stack(varCONTROL[new_list[ensNum]][timeStartControl:,30:-6,:].astype('float'))
         else:
             if var == 'ALT':
-                temp = np.stack(varCONTROL[ens[ensNum]][timeStartControl:,30:-6,:].values.astype('float'))
+                temp = np.stack(varCONTROL[new_list[ensNum]][timeStartControl:,30:-6,:].values.astype('float'))
             else:
-                temp = np.stack(varCONTROL[ens[ensNum]][:,30:-6,:].astype('float'))
+                temp = np.stack(varCONTROL[new_list[ensNum]][:,30:-6,:].astype('float'))
         featuresC.append(temp)
     del temp
     
     # FEEDBACK
     featuresF = []
-    for ensNum in range(len(ens)):
+    for ensNum in range(len(new_list)):
         if timeFrame == 'winter' or timeFrame == 'non_growing_season':
-            temp = np.stack(varFEEDBACK[ens[ensNum]][:timeEndFeedback+1,30:-6,:].astype('float'))
+            temp = np.stack(varFEEDBACK[new_list[ensNum]][:timeEndFeedback+1,30:-6,:].astype('float'))
         else:
             if var == 'ALT':
-                temp = np.stack(varFEEDBACK[ens[ensNum]][:timeEndFeedback+1,30:-6,:].values.astype('float'))
+                temp = np.stack(varFEEDBACK[new_list[ensNum]][:timeEndFeedback+1,30:-6,:].values.astype('float'))
             else:
-                temp = np.stack(varFEEDBACK[ens[ensNum]][:,30:-6,:].astype('float'))
+                temp = np.stack(varFEEDBACK[new_list[ensNum]][:,30:-6,:].astype('float'))
         featuresF.append(temp)
     del temp
     ## ---------------------------------------------------- ##
     
     ## ------ Split training/test data ------ ##
-    from random import sample
-    number_list = [6,7,8,9,10,3,4,1]
-    new_list    = sample(number_list,len(number_list))
     valNum      = 2
     testNum     = 1
     print('training members = ' + str(new_list[:-(valNum+testNum)]))
