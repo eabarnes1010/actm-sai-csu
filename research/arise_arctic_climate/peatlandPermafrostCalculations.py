@@ -156,35 +156,25 @@ def getLandType(makeFigures):
         ds.close()
      
         
-    ## ---- time series figures ---- ##
+    ''' FIGURES'''
     if makeFigures:
         ## ---- cumulative carbon emitted from permafrost soils, 2035-2065 ---- ##
-        from make_timeseries import make_timeseries
+        from make_timeseries import make_timeseries, make_ensemble_mean_timeseries
         import matplotlib.pyplot as plt
-        ensMeanERCONTROL_ts, ensMembersERCONTROL_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumControl)
-        ensMeanERFEEDBACK_ts, ensMembersERFEEDBACK_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumFeedback)
-        ensMeanER_PEAT_CONTROL_ts, ensMembersER_PEAT_CONTROL_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumPeatControl)
-        ensMeanER_PEAT_FEEDBACK_ts, ensMembersER_PEAT_FEEDBACK_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumPeatFeedback)
+        ensMembersERCONTROL_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumControl)
+        ensMeanERCONTROL_ts = make_ensemble_mean_timeseries(ensMembersERCONTROL_ts, numEns)
+        ensMembersERFEEDBACK_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumFeedback)
+        ensMeanERFEEDBACK_ts = make_ensemble_mean_timeseries(ensMembersERFEEDBACK_ts, numEns)
+        ensMembersER_PEAT_CONTROL_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumPeatControl)
+        ensMeanER_PEAT_CONTROL_ts = make_ensemble_mean_timeseries(ensMembersER_PEAT_CONTROL_ts, numEns)
+        ensMembersER_PEAT_FEEDBACK_ts = make_timeseries(numEns,'ER',lat,lon,90,40,360,0,soilResCumPeatFeedback)
+        ensMeanER_PEAT_FEEDBACK_ts = make_ensemble_mean_timeseries(ensMembersER_PEAT_FEEDBACK_ts, numEns)
         
-        peatlandEnsMeanFeedbackArea = 0
-        for val in peatlandPfrostFeedbackArea:
-            peatlandEnsMeanFeedbackArea += val
-        peatlandEnsMeanFeedbackArea = peatlandEnsMeanFeedbackArea/numEns 
+        peatlandEnsMeanFeedbackArea = make_ensemble_mean_timeseries(peatlandPfrostFeedbackArea, numEns)
+        peatlandEnsMeanControlArea = make_ensemble_mean_timeseries(peatlandPfrostControlArea, numEns)
+        pfrostEnsMeanFeedbackArea = make_ensemble_mean_timeseries(totalPfrostFeedbackArea, numEns)
+        pfrostEnsMeanControlArea = make_ensemble_mean_timeseries(totalPfrostControlArea, numEns)
         
-        peatlandEnsMeanControlArea = 0
-        for val in peatlandPfrostControlArea:
-            peatlandEnsMeanControlArea += val
-        peatlandEnsMeanControlArea = peatlandEnsMeanControlArea/numEns 
-        
-        pfrostEnsMeanFeedbackArea = 0
-        for val in totalPfrostFeedbackArea:
-            pfrostEnsMeanFeedbackArea += val
-        pfrostEnsMeanFeedbackArea = pfrostEnsMeanFeedbackArea/numEns 
-        
-        pfrostEnsMeanControlArea = 0
-        for val in totalPfrostControlArea:
-            pfrostEnsMeanControlArea += val
-        pfrostEnsMeanControlArea = pfrostEnsMeanControlArea/numEns 
         
         fig = plt.figure(figsize=(10,4.5),dpi=900)
         for ensNum in range(len(ens)):
@@ -243,21 +233,16 @@ def getLandType(makeFigures):
         plt.xticks([0,5,10,15,20,25,29],['2035','2040','2045','2050','2055','2060','2064'])
         plt.xlim([0,29])
         plt.ylim(bottom=0)
-        plt.ylabel('Permafrost soil respiration (kgC/m2)', fontsize=11)
-        plt.title('Cumulative respiration from permafrost soils', fontsize=14, fontweight='bold')
+        plt.ylabel('Permafrost soil respiration (kgC/$m^2$)', fontsize=11)
+        plt.title('Cumulative respiration from permafrost soils (per $m^2$)', fontsize=14, fontweight='bold')
         plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/nh_cumulative_ER_per_area_2035-2064.jpg',bbox_inches='tight',dpi=900)
         
         
         ## ---- peatland permafrost ---- ##
-        fig, ax = plt.subplots(figsize=(10,4.5),dpi=720)
-        ensMeanFeedback = 0
-        for val in peatlandPfrostFeedbackArea:
-            ensMeanFeedback += val
-        ensMeanFeedback = ensMeanFeedback/numEns 
-        ensMeanControl = 0
-        for val in peatlandPfrostControlArea:
-            ensMeanControl += val
-        ensMeanControl = ensMeanControl/numEns 
+        fig, ax = plt.subplots(figsize=(10,4.5),dpi=800)
+        ensMeanFeedback = make_ensemble_mean_timeseries(peatlandPfrostFeedbackArea, numEns)
+        ensMeanControl = make_ensemble_mean_timeseries(peatlandPfrostControlArea, numEns)
+    
         for i in range(numEns):
             plt.plot(
                 (100 - (peatlandPfrostFeedbackArea[i,0] - peatlandPfrostFeedbackArea[
@@ -274,9 +259,9 @@ def getLandType(makeFigures):
         plt.ylabel('% of 2035 peatland permafrost remaining')
         plt.xticks([0,5,10,15,20,25,29],['2035','2040','2045','2050','2055','2060','2064'])
         plt.xlim([0,29])
-        plt.ylim([74,100.25])
+        plt.ylim(top=100.25)
         plt.legend(fancybox=True)
         plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/percent_peatland_permafrost_timeseries.jpg', 
-                    dpi=720, bbox_inches='tight')
+                    dpi=800, bbox_inches='tight')
         
     return

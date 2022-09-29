@@ -61,9 +61,21 @@ def make_timeseries(numEns,var,lat,lon,latmax,latmin,lonmax,lonmin,dataDict):
             ensMasked_grouped = ensMasked[:,latmin_ind:latmax_ind,lonmin_ind:lonmax_ind].groupby('time.year').mean(dim='time',skipna=True)
             ensMemberTS[ens[ensNum]] = np.array([np.ma.average(ensMasked_grouped[i], weights=weights2D[latmin_ind:latmax_ind,lonmin_ind:lonmax_ind]) for i in range((ensMasked_grouped.shape)[0])])
 
-    # Ensemble mean
+    # # Ensemble mean
+    # ensMeanTS = 0
+    # for val in ensMemberTS.values():
+    #     ensMeanTS += val
+    # ensMeanTS = ensMeanTS/numEns   
+    return ensMemberTS
+
+def make_ensemble_mean_timeseries(ensMemberTS,numEns):
     ensMeanTS = 0
-    for val in ensMemberTS.values():
-        ensMeanTS += val
-    ensMeanTS = ensMeanTS/numEns   
-    return ensMeanTS, ensMemberTS
+    if type(ensMemberTS).__module__ == 'numpy':
+        for val in ensMemberTS:
+            ensMeanTS += val
+        ensMeanTS = ensMeanTS/numEns 
+    else:
+        for val in ensMemberTS.values():
+            ensMeanTS += val
+        ensMeanTS = ensMeanTS/numEns 
+    return ensMeanTS
