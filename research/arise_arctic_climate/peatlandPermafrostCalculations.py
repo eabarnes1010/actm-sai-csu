@@ -110,9 +110,7 @@ def getLandType(makeFigures):
                              '.clm2.h0.ER.201501-206412_NH.nc', decode_times=False)
         units, reference_date = ds.time.attrs['units'].split('since')
         ds['time'] = pd.date_range(start=reference_date, periods=ds.sizes['time'], freq='MS')
-        lat = ds.lat
-        lon = ds.lon
-        time = ds.time[240:]
+        lat = ds.lat; lon = ds.lon; time = ds.time[240:]
         '''
         Cumulative annual soil respiration from 2035 to 2064 to see if model can 
         detect a difference in 'irreversible' soil carbon loss
@@ -200,8 +198,7 @@ def getLandType(makeFigures):
                       label='ARISE-SAI peat permafrost')
         plt.legend(fancybox=True)
         plt.xticks([0,5,10,15,20,25,29],['2035','2040','2045','2050','2055','2060','2064'])
-        plt.xlim([0,29])
-        plt.ylim(bottom=0)
+        plt.xlim([0,29]); plt.ylim(bottom=0)
         plt.ylabel('Permafrost soil respiration (metric kilotons C)', fontsize=11)
         plt.title('Cumulative respiration from permafrost soils', fontsize=14, fontweight='bold')
         plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/nh_cumulative_ER_2035-2064.jpg',bbox_inches='tight',dpi=900)
@@ -231,8 +228,7 @@ def getLandType(makeFigures):
                       label='ARISE-SAI peat permafrost')
         plt.legend(fancybox=True)
         plt.xticks([0,5,10,15,20,25,29],['2035','2040','2045','2050','2055','2060','2064'])
-        plt.xlim([0,29])
-        plt.ylim(bottom=0)
+        plt.xlim([0,29]); plt.ylim(bottom=0)
         plt.ylabel('Permafrost soil respiration (kgC/$m^2$)', fontsize=11)
         plt.title('Cumulative respiration from permafrost soils (per $m^2$)', fontsize=14, fontweight='bold')
         plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/nh_cumulative_ER_per_area_2035-2064.jpg',bbox_inches='tight',dpi=900)
@@ -258,8 +254,7 @@ def getLandType(makeFigures):
                  color='xkcd:dark red',linewidth=2,label='CESM2-WACCM-SSP2-4.5')
         plt.ylabel('% of 2035 peatland permafrost remaining')
         plt.xticks([0,5,10,15,20,25,29],['2035','2040','2045','2050','2055','2060','2064'])
-        plt.xlim([0,29])
-        plt.ylim(top=100.25)
+        plt.xlim([0,29]); plt.ylim(top=100.25)
         plt.legend(fancybox=True)
         plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/percent_peatland_permafrost_timeseries.jpg', 
                     dpi=800, bbox_inches='tight')

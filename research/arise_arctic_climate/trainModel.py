@@ -49,66 +49,20 @@ def trainModel(timeFrame,var):
         epochs  = 5
         lr      = 0.08
         l1, l2  = 0,0.9
+    ## -------------------------------- ## 
+    
     
     ## ------ Get processed training and test data ------ ##
     lat,lon,features_train,features_val,features_test,\
-        labels_train,labels_val,labels_test,X_train,y_train,\
-            X_val,y_val,X_test,y_test,lenTime,testMemNum = preprocessDataForPrediction(str(
-                                                    timeFrame),str(var),20)
+        labels_train,labels_val,labels_test,\
+        X_train,y_train,\
+        X_val,y_val,\
+        X_test,y_test,\
+        lenTime,testMemNum = preprocessDataForPrediction(str(
+                                                    timeFrame),
+                                                    str(var),20)
     ## ---------------------------------------------------- ## 
     
-    ## ------ Categorical labels ------ ##
-    y_train = tf.keras.utils.to_categorical(labels_train)
-    y_val   = tf.keras.utils.to_categorical(labels_val)
-    y_test  = tf.keras.utils.to_categorical(labels_test)
-    ## ---------------------------------------------------- ##    
-    
-    ## ------ Select training years ------ ##
-    # Training years = 2035-2054
-    X_train = features_train[:,:lenTime,:,:]
-    X_val   = features_val[:,:lenTime,:,:]
-    X_test  = features_test[:,:lenTime,:,:]
-    # y_train = y_train[:,:lenTime,0]
-    # y_val   = y_val[:,:lenTime,0]
-    # y_test  = y_test[:,:lenTime,0]
-    y_train = y_train[:,:lenTime]
-    y_val   = y_val[:,:lenTime]
-    y_test  = y_test[:,:lenTime]
-    ## ---------------------------------------------------- ## 
-    
-    ## ------ Flatten data ------ ##
-    lenLat = 49; lenLon = 288; 
-    X_train = X_train.reshape(len(X_train)*lenTime,lenLat*lenLon)
-    X_val   = X_val.reshape(len(X_val)*lenTime,lenLat*lenLon)
-    X_test  = X_test.reshape(len(X_test)*lenTime,lenLat*lenLon)
-    y_train = y_train.reshape((len(y_train)*lenTime,2))
-    y_val   = y_val.reshape((len(y_val)*lenTime,2))
-    y_test  = y_test.reshape((len(y_test)*lenTime,2))
-    ## ---------------------------------------------------- ## 
-    
-    ## ------ Replace NaNs and inf ------ ##  
-    X_train[np.isnan(X_train)] = 0.
-    X_train[X_train == inf] = 0.
-    X_train[X_train == -inf] = 0.
-    X_val[np.isnan(X_val)] = 0.
-    X_val[X_val == inf] = 0.
-    X_val[X_val == -inf] = 0.
-    X_test[np.isnan(X_test)] = 0.
-    X_test[X_test == inf] = 0.
-    X_test[X_test == -inf] = 0.
-    y_train[np.isnan(y_train)] = 0.
-    y_val[np.isnan(y_val)] = 0.
-    y_test[np.isnan(y_test)] = 0.
-    ## ---------------------------------------------------- ## 
-    
-    ## ------ Predict if map comes from control simulation ------ ##
-    y_train = y_train[:,1:]
-    y_val   = y_val[:,1:]
-    y_test  = y_test[:,1:]
-    # y_train = y_train[:lenTime,1]
-    # y_val   = y_val[:lenTime,1]
-    # y_test  = y_test[:lenTime,1]
-    ## ---------------------------------------------------- ## 
     
     ## ------ Create and train the model ------ ##
     tf.keras.backend.clear_session()
@@ -152,6 +106,8 @@ def trainModel(timeFrame,var):
                 return lr
             else:
                 return lr*0.1
+    ## ------------------------------- ## 
+    
         
     ## ------ Compile the model ------ ##   
     model.compile(optimizer = optimizers.SGD(learning_rate=lr, 
@@ -173,13 +129,15 @@ def trainModel(timeFrame,var):
                         verbose         = verbose, 
                         callbacks       = [lr_scheduler,stopEarly,],
                         validation_data = (X_val,y_val))
-    ## ---------------------------------------------------- ## 
+    ## -------------------------------- ## 
+    
     
     ## ------ Predictions! ------ ##
     y_pred_train = model.predict(X_train)
     y_pred_val   = model.predict(X_val)
     y_pred_test  = model.predict(X_test)
     ## -------------------------- ## 
+    
     
     ## ------ Prediction confidence ------ ##
     '''
@@ -231,7 +189,7 @@ def trainModel(timeFrame,var):
     plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_confidence_'\
                 +str(timeFrame)+'_'+str(var)+'.jpg',bbox_inches='tight',dpi=800)
     plt.show()
-    ## ----------------------------------- ##
+    ## ------------------------------------------------------------------------- ##
     
     ## ------ Accuracy metrics ------ ##
     print("binary accuracy: ", np.round(history.history['binary_accuracy'],decimals=3))
@@ -241,7 +199,6 @@ def trainModel(timeFrame,var):
                                                  labels_test[0,:lenTime]),dtype='int32'),dtype='float')
     acc_FEEDBACK = np.asarray(np.asarray(np.equal(np.round(np.squeeze(y_pred_FEEDBACK)),
                                                   labels_test[1,:lenTime]),dtype='int32'),dtype='float')
-    # acc_CONTROL[acc_CONTROL == 0] = 2; acc_CONTROL[acc_CONTROL == 1] = 0; acc_CONTROL[acc_CONTROL == 2] = 1
     
     print("-------------------------------------------")
     print("Correct predictions (label = 1; above 50% confidence)")
@@ -270,7 +227,7 @@ def trainModel(timeFrame,var):
     ax1.set_yticklabels(['False','True'], fontweight='bold')
     plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_accuracy_'\
                 +str(timeFrame)+'_'+str(var)+'.jpg', bbox_inches='tight',dpi=900); plt.show()
-    ## ------------------------------ ##
+    ## ----------------------------------------------------------------------- ## 
     
     ## ------ Summarize history for loss ------ ##
     plt.figure(figsize=(8,4),dpi=700)
@@ -278,13 +235,11 @@ def trainModel(timeFrame,var):
     plt.plot(history.history['val_loss'])
     plt.title('model loss ' + '(' + str(timeFrame) + ') ' + str(var), fontsize=11)
     plt.ylabel('loss'); plt.xlabel('epoch')
-    # ymax = np.nanmax([np.nanmax(history.history['val_loss'][1:]), np.nanmax(history.history['loss'][1:])])
-    # plt.ylim(top=ymax)
     plt.xlim([0,epochs-1])
     plt.legend(['train', 'val'], loc='upper right')
     plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/train_val_loss_'\
                 +str(timeFrame)+'_'+str(var)+'.jpg',bbox_inches='tight',dpi=700); plt.show()
-    ## ---------------------------------------- ## 
+    ## ---------------------------------------- ---------------- ## 
     '''
     First number is likelihood of map coming from first column of testing data,
     second number is likelihood of second column 
@@ -294,6 +249,7 @@ def trainModel(timeFrame,var):
     ## ------ Map of weights ------ ##
     if singleLayer:
         from plottingFunctions import get_colormap, make_maps
+        lenLat = 49; lenLon = 288; 
         brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
         mapWeights = (model.layers[0].get_weights()[0].reshape(lenLat,lenLon))
         if var == 'ER':
@@ -307,7 +263,7 @@ def trainModel(timeFrame,var):
         # mapWeights = model.layers[0].get_weights()[0][:,1].reshape(lenLat,lenLon)
         # fig,ax = make_maps(mapWeights,lat[29:-6],lon,
         #                     -0.02,0.02,21,brbg_cmap,'weights','weights for '+str(timeFrame)+', control','feedback_weights_'+str(timeFrame))
-    ## ----------------------------- ##
+    ## ------------------------------------------------------------ ##
     
     return 
 

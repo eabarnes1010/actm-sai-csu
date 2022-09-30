@@ -262,52 +262,46 @@ def preprocessDataForPrediction(timeFrame,var,numYears):
     # y_test  = y_test[:lenTime,1]
     ## ---------------------------------------------------- ## 
     
-    # ## ------ Map of last time step and difference between SSP & ARISE ------ ##
-    # from plottingFunctions import make_maps, get_colormap
-    # brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
+    ## ------ Map of last time step and difference between SSP & ARISE ------ ##
+    from plottingFunctions import make_maps, get_colormap
+    brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
     
-    # if var == 'ALT':
-    #     print(np.nanmin(varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varCONTROL[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     print(np.nanmin(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varFEEDBACK[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:])
-    #     fig,ax = make_maps(False,feature,varCONTROL[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
-    #                         0,20,21,magma,'depth (m)','ALT for control '+str(timeFrame),'LR_active_layer_map_CONTROL_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,varFEEDBACK[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
-    #                         0,20,21,magma,'depth (m)','ALT for feedback '+str(timeFrame),'LR_active_layer_map_FEEDBACK_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,diff,lat[30:-6],lon,-4,4,17,rdbu_cmap,'depth (m)',
-    #                         '2040 ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
-    # elif var == 'ER':
-    #     print("control: ", np.nanmin(varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varCONTROL[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     print("feedback: ",np.nanmin(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varFEEDBACK[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.)
-    #     fig,ax = make_maps(False,feature,varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
-    #                         0,50,11,reds,'cumulative emissions (kgC/m2)','2055 ER for control '+str(timeFrame),'LR_respiration_map_CONTROL_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
-    #                         0,50,11,reds,'cumulative emissions (kgC/m2)','2055 ER for feedback '+str(timeFrame),'LR_respiration_map_FEEDBACK_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,diff,lat[30:-6],lon,-5,5,21,rdbu_cmap,'rate (kgC/m2)',
-    #                         '2040 ER difference for '+str(timeFrame)+' SSP - ARISE','LR_respiration_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
-    # elif var == 'NEE':
-    #     print("control: ",np.nanmin(varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varCONTROL[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     print("feedback: ",np.nanmin(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varFEEDBACK[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.)
-    #     fig,ax = make_maps(False,feature,varCONTROL[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
-    #                         0,500,21,reds,'cumulative net ecosystem exchange (gC/m2)','2055 NEE for control '+str(timeFrame),'LR_co2_exchange_map_CONTROL_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,varFEEDBACK[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
-    #                         0,500,21,reds,'cumulative net ecosystem exchange (gC/m2)','2055 NEE for feedback '+str(timeFrame),'LR_co2_exchange_map_FEEDBACK_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,diff,lat[30:-6],lon,-1,1,21,rdbu_cmap,'cumulative exchange (kgC/m2)',
-    #                         '2040 NEE difference for '+str(timeFrame)+' SSP - ARISE','LR_co2_exchange_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
-    # elif var == 'GPP':
-    #     print(np.nanmin(varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varCONTROL[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     print(np.nanmin(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.), np.nanmax(varFEEDBACK[ens[testNum]][numYears,30:-6,:]/1000.))
-    #     diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.)
-    #     fig,ax = make_maps(False,feature,varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
-    #                         0,2,21,reds,'cumulative primary productivity (kgC/m2)','2055 GPP for control '+str(timeFrame),'LR_GPP_map_CONTROL_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
-    #                         0,2,21,reds,'cumulative primary productivity (kgC/m2)','2055 GPP for feedback '+str(timeFrame),'LR_GPP_map_FEEDBACK_'+str(timeFrame))
-    #     fig,ax = make_maps(False,feature,diff,lat[30:-6],lon,-1,1,21,rdbu_cmap,'cumulative primary productivity (kgC/m2)',
-    #                         '2040 GPP difference for '+str(timeFrame)+' SSP - ARISE','LR_GPP_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    print("control: ", np.nanmin(varCONTROL[ens[testNum]][numYears-15,30:-6,:]), np.nanmax(varCONTROL[ens[testNum]][numYears,30:-6,:]))
+    print("feedback: ",np.nanmin(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]), np.nanmax(varFEEDBACK[ens[testNum]][numYears,30:-6,:]))
+    if var == 'ALT':
+        diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:])
+        fig,ax = make_maps(varCONTROL[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
+                            0,20,21,magma,'depth (m)','ALT for control '+str(timeFrame),'LR_active_layer_map_CONTROL_'+str(timeFrame))
+        fig,ax = make_maps(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
+                            0,20,21,magma,'depth (m)','ALT for feedback '+str(timeFrame),'LR_active_layer_map_FEEDBACK_'+str(timeFrame))
+        fig,ax = make_maps(diff,lat[30:-6],lon,-4,4,17,rdbu_cmap,'depth (m)',
+                            '2040 ALT difference for '+str(timeFrame)+' SSP - ARISE','LR_active_layer_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    elif var == 'ER':
+        diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.)
+        fig,ax = make_maps(varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
+                            0,50,11,reds,'cumulative emissions (kgC/m2)','2055 ER for control '+str(timeFrame),'LR_respiration_map_CONTROL_'+str(timeFrame))
+        fig,ax = make_maps(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
+                            0,50,11,reds,'cumulative emissions (kgC/m2)','2055 ER for feedback '+str(timeFrame),'LR_respiration_map_FEEDBACK_'+str(timeFrame))
+        fig,ax = make_maps(diff,lat[30:-6],lon,-5,5,21,rdbu_cmap,'rate (kgC/m2)',
+                            '2040 ER difference for '+str(timeFrame)+' SSP - ARISE','LR_respiration_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    elif var == 'NEE':
+        diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.)
+        fig,ax = make_maps(varCONTROL[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
+                            0,500,21,reds,'cumulative net ecosystem exchange (gC/m2)','2055 NEE for control '+str(timeFrame),'LR_co2_exchange_map_CONTROL_'+str(timeFrame))
+        fig,ax = make_maps(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:],lat[30:-6],lon,
+                            0,500,21,reds,'cumulative net ecosystem exchange (gC/m2)','2055 NEE for feedback '+str(timeFrame),'LR_co2_exchange_map_FEEDBACK_'+str(timeFrame))
+        fig,ax = make_maps(diff,lat[30:-6],lon,-1,1,21,rdbu_cmap,'cumulative exchange (kgC/m2)',
+                            '2040 NEE difference for '+str(timeFrame)+' SSP - ARISE','LR_co2_exchange_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
+    elif var == 'GPP':
+        diff = (varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.) - (varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.)
+        fig,ax = make_maps(varCONTROL[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
+                            0,2,21,reds,'cumulative primary productivity (kgC/m2)','2055 GPP for control '+str(timeFrame),'LR_GPP_map_CONTROL_'+str(timeFrame))
+        fig,ax = make_maps(varFEEDBACK[ens[testNum]][numYears-15,30:-6,:]/1000.,lat[30:-6],lon,
+                            0,2,21,reds,'cumulative primary productivity (kgC/m2)','2055 GPP for feedback '+str(timeFrame),'LR_GPP_map_FEEDBACK_'+str(timeFrame))
+        fig,ax = make_maps(diff,lat[30:-6],lon,-1,1,21,rdbu_cmap,'cumulative primary productivity (kgC/m2)',
+                            '2040 GPP difference for '+str(timeFrame)+' SSP - ARISE','LR_GPP_map_CONTROL_minus_FEEDBACK_'+str(timeFrame))
     
-    # del fig, ax
+    del fig, ax
     ## ----------------------------- ##
     
     return lat,lon,features_train,features_val,features_test,\

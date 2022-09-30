@@ -29,8 +29,6 @@ def make_timeseries(numEns,var,lat,lon,latmax,latmin,lonmax,lonmin,dataDict):
             for iyear in range(len(dataDict[ens[0]].year)):
                 weights2D[ens[i]][iyear,:,:] = np.cos(np.deg2rad(latmesh))
                 weights2D[ens[i]][iyear,:,:][np.isnan(dataDict[ens[i]][iyear,:,:])] = np.nan
-                # weights2D[i,iyear,:,:] = np.ma.array(weights2D[i,iyear,:,:], mask=np.isnan(dataDict[ens[i]][iyear,:,:]))
-                # weights2D[i,iyear,:,:] = np.ma.masked_where(np.isnan(dataDict[ens[i]][iyear,:,:]),weights2D[i,iyear,:,:])
 
     else:
         weights2D = np.cos(np.deg2rad(latmesh))
@@ -45,12 +43,11 @@ def make_timeseries(numEns,var,lat,lon,latmax,latmin,lonmax,lonmin,dataDict):
             ensMasked_grouped = ensMasked[:,latmin_ind:latmax_ind,lonmin_ind:lonmax_ind].groupby('time.year').mean(dim='time',skipna=True)
             ensMemberTS[ens[ensNum]] = np.array([np.average((np.ma.MaskedArray(ensMasked_grouped,mask=np.isnan(ensMasked_grouped)))[i], weights=weights2D[latmin_ind:latmax_ind,lonmin_ind:lonmax_ind]) for i in range((ensMasked_grouped.shape)[0])])
         elif var == 'ER':
-            # weights = np.cos(np.deg2rad(latmesh[latmin_ind:latmax_ind,lonmin_ind:lonmax_ind]))#weights2D[ens[ensNum]][:,latmin_ind:latmax_ind,lonmin_ind:lonmax_ind]
             ensMasked         = dataDict[ens[ensNum]]
             ensMasked_grouped = ensMasked[:,latmin_ind:latmax_ind,lonmin_ind:lonmax_ind]
             ensMasked_grouped = np.ma.MaskedArray(ensMasked_grouped, mask=np.isnan(ensMasked_grouped))
-            weights           = weights2D[ens[ensNum]][:,latmin_ind:latmax_ind,lonmin_ind:lonmax_ind]
-            weights           = np.ma.asanyarray(weights)
+            weights           = np.ma.asanyarray(weights2D[ens[ensNum]][
+                                    :,latmin_ind:latmax_ind,lonmin_ind:lonmax_ind])
             weights.mask      = ensMasked_grouped.mask
             ensMemberTS[ens[ensNum]] = np.array([np.ma.average(
                                                 ensMasked_grouped[i],
@@ -60,13 +57,9 @@ def make_timeseries(numEns,var,lat,lon,latmax,latmin,lonmax,lonmin,dataDict):
             ensMasked = dataDict[ens[ensNum]]
             ensMasked_grouped = ensMasked[:,latmin_ind:latmax_ind,lonmin_ind:lonmax_ind].groupby('time.year').mean(dim='time',skipna=True)
             ensMemberTS[ens[ensNum]] = np.array([np.ma.average(ensMasked_grouped[i], weights=weights2D[latmin_ind:latmax_ind,lonmin_ind:lonmax_ind]) for i in range((ensMasked_grouped.shape)[0])])
-
-    # # Ensemble mean
-    # ensMeanTS = 0
-    # for val in ensMemberTS.values():
-    #     ensMeanTS += val
-    # ensMeanTS = ensMeanTS/numEns   
+ 
     return ensMemberTS
+
 
 def make_ensemble_mean_timeseries(ensMemberTS,numEns):
     ensMeanTS = 0

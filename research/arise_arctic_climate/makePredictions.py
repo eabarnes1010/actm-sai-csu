@@ -78,7 +78,6 @@ def makePredictions(timeFrame,var):
                             '2045','2047','2049','2051','2053',
                             ])
     plt.axhline(0.5,0,lenTime,linestyle='dashed',color='k',linewidth=0.6)
-    # plt.legend(loc='lower right')
     ax.set_yticks([])
     ax.set(xlabel=None)
     plt.ylabel('Prediction confidence\n incorrect                        correct',
@@ -96,7 +95,6 @@ def makePredictions(timeFrame,var):
                                                  labels_test[0,:lenTime]),dtype='int32'),dtype='float')
     acc_FEEDBACK = np.asarray(np.asarray(np.equal(np.round(np.squeeze(y_pred_FEEDBACK)),
                                                   labels_test[1,:lenTime]),dtype='int32'),dtype='float')
-    # acc_CONTROL[acc_CONTROL == 0] = 2; acc_CONTROL[acc_CONTROL == 1] = 0; acc_CONTROL[acc_CONTROL == 2] = 1
     
     print("-------------------------------------------")
     print("Correct predictions (label = 1; above 50% confidence)")
@@ -148,8 +146,5 @@ def makePredictions(timeFrame,var):
                         vmins,vmaxs,21,rdbu_cmap,
                         'weights','weights for '+str(timeFrame),
                         'weights_'+str(timeFrame)+'_'+str(var))
-    # mapWeights = model.layers[0].get_weights()[0][:,1].reshape(lenLat,lenLon)
-    # fig,ax = make_maps(mapWeights,lat[29:-6],lon,
-    #                     -0.02,0.02,21,brbg_cmap,'weights','weights for '+str(timeFrame)+', control','feedback_weights_'+str(timeFrame))
     ## ----------------------------- ##
     return
