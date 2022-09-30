@@ -3,9 +3,11 @@
 """
 Created on Mon Jul 25 14:45:07 2022
 
-@author: arielmor
+@author: Ariel L. Morrison
 """
+import os
 figureDir = '/Users/arielmor/Desktop/SAI/data/ARISE/figures/'
+os.chdir('/Users/arielmor/Projects/actm-sai-csu/research/arise_arctic_climate')
 
 def get_colormap(levs):
     from matplotlib import cm
@@ -28,7 +30,9 @@ def get_colormap(levs):
     rdbu_cmap = ListedColormap(newcolors)
     ## rainbow
     jet = cm.get_cmap('turbo', (levs))
-    return brbg_cmap,rdbu_cmap,jet
+    magma = cm.get_cmap('magma', (levs))
+    reds = cm.get_cmap('Reds',(levs))
+    return brbg_cmap,rdbu_cmap,jet,magma,reds
 
 
 def make_maps(var,latitude,longitude,vmins,vmaxs,levs,mycmap,label,title,savetitle):
@@ -44,7 +48,7 @@ def make_maps(var,latitude,longitude,vmins,vmaxs,levs,mycmap,label,title,savetit
     ## Add cyclic point
     var,lon = add_cyclic_point(var,coord=longitude)
     ## Create figure
-    fig = plt.figure(figsize=(12,8))
+    fig = plt.figure(figsize=(10,6))
     if vmins < 0. and vmins > 0.:
         norm = mcolors.TwoSlopeNorm(vmin=vmins, vcenter=0, vmax=vmaxs)
     else:
@@ -61,13 +65,13 @@ def make_maps(var,latitude,longitude,vmins,vmaxs,levs,mycmap,label,title,savetit
     ## Filled contour map
     cf1 = ax.pcolormesh(lon,latitude,var,transform=ccrs.PlateCarree(), 
                   norm=norm, cmap=mycmap)
-    ax.coastlines(linewidth=1)
+    ax.coastlines(linewidth=0.8)
     if vmins < 0.:
         cbar = plt.colorbar(cf1, ax=ax, extend="both")
     else:
         cbar = plt.colorbar(cf1, ax=ax, extend="max")
-    cbar.set_label(str(label), fontsize=12)
-    plt.title(str(title), fontsize=13)
+    cbar.set_label(str(label), fontsize=10)
+    plt.title(str(title), fontsize=11)
     ## Save figure
     plt.savefig(figureDir + str(savetitle) + '.jpg', dpi=950, bbox_inches='tight')
     return fig, ax

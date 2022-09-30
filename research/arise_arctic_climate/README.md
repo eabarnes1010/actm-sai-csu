@@ -3,7 +3,7 @@
 * __authors__: Ariel L. Morrison, Elizabeth A. Barnes, James Hurrell
 * __date__: June 16, 2022
 
-The Arctic is the fastest-warming region on Earth in response to increasing atmospheric greenhouse gas concentrations. As the Arctic warms, its climate is likely to experience tipping points such as extensive permafrost thaw and melting of the Greenland ice sheet. This work examines how climate intervention strategies (i.e., stratospheric aerosol injection) may prevent or slow the onset of these tipping points. We focus on the ARISE-SAI simluations and compare them with the SSP2-4.5 climate scenario.
+The Arctic is the fastest-warming region on Earth in response to increasing atmospheric greenhouse gas concentrations. As the Arctic warms, its climate is likely to experience dramatic changes such as widespread permafrost thaw. Permafrost thaw could potentially lead to a climate tipping point through the release of stored carbon, where released CO2 and CH4 could accelerate the rate of high latitude warming and cause a positive permafrost carbon feedback. This work examines how climate intervention strategies (i.e., stratospheric aerosol injection) may prevent or slow the onset of this potential tipping point. We focus on the ARISE-SAI-1.5 simluations and compare them with the SSP2-4.5 climate scenario in the CESM2 model.
 
 ## Create empty directories
 * You will also need to make additional directories:
