@@ -11,9 +11,9 @@ This work is a collaborative effort across a team of contributors at Colorado St
 * Dr. Curtis Bell [Naval War College]
 * [Daniel Hueholt](https://www.hueholt.earth/)
 * Dr. Patrick Keys
-* [Dr. Zack Labe](https://sites.uci.edu/zlabe)
+* [Dr. Zack Labe](https://zacklabe.com/)
 * [Dr. Antonios Mamalakis](https://amamalak.wixsite.com/antonios)
-* [Kirsten Mayer](https://sites.google.com/rams.colostate.edu/kirsten-j-mayer/home)
+* [Dr. Kirsten Mayer](https://sites.google.com/rams.colostate.edu/kirsten-j-mayer/home)
 * [Dr. Ariel Morrison](https://www.ariel-morrison.com)
 * Dr. ChenRui Diao
 
