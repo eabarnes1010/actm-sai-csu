@@ -15,6 +15,7 @@ This work is a collaborative effort across a team of contributors at Colorado St
 * [Dr. Antonios Mamalakis](https://amamalak.wixsite.com/antonios)
 * [Kirsten Mayer](https://sites.google.com/rams.colostate.edu/kirsten-j-mayer/home)
 * [Dr. Ariel Morrison](https://www.ariel-morrison.com)
+* Dr. ChenRui Diao
 
 ## Project Summary
 Solar radiation management (SRM) refers to the possibility of moderating anthropogenic warming and lessening its impacts, including natural systems approaching irreversible tipping points, by making the atmosphere more reflective of incoming solar radiation. Conclusions about the effectiveness, risks and detectability of SRM are highly uncertain, however, and are dependent upon the specifics of the modeling scenario. To-date, assessments of SRM typically consider just one scenario with one particular choice of temperature target, and one particular injection strategy. Moreover, many assessments are done on very idealized SRM scenarios performed with relatively simple representations of the climate.
