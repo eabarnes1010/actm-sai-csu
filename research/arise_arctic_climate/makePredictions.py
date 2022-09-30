@@ -7,22 +7,22 @@ Created on Thu Sep 29 14:14:44 2022
 """
 
 def makePredictions(timeFrame,var):
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
     import tensorflow as tf
-    import trainModel
+    from tensorflow import keras
     from preprocessingData import preprocessDataForPrediction
-    
-    history,lenTime,y_pred_test = trainModel('annual','ER')
-    
-    model = tf.keras.models.load('saved_model/logistic_regression_predict_soil_respiration')
+    datadir = '/Users/arielmor/Desktop/SAI/data/ARISE/data/model_output'
+        
+    model = tf.keras.models.load_model('saved_model/logistic_regression_predict_soil_respiration')
     
     lat,lon,features_train,features_val,features_test,\
         labels_train,labels_val,labels_test,X_train,y_train,\
-            X_val,y_val,X_test,y_test,lenTime = preprocessDataForPrediction(str(
-                                                    timeFrame),str(var))
+            X_val,y_val,X_test,y_test,lenTime,testMemNum = preprocessDataForPrediction(str(
+                                                    timeFrame),str(var),20)
     
     ## ------ Predictions! ------ ##
-    y_pred_train = model.predict(X_train)
-    y_pred_val   = model.predict(X_val)
     y_pred_test  = model.predict(X_test)
     ## -------------------------- ## 
     
@@ -36,27 +36,37 @@ def makePredictions(timeFrame,var):
     '''
     y_pred_CONTROL= np.round(y_pred_test[:lenTime],decimals=3)
     y_pred_FEEDBACK = np.round(y_pred_test[lenTime:],decimals=3)
-    ## add markers to signify if prediction is right or wrong ##
-    df = pd.DataFrame.from_dict(dict(controlprediction=(1-y_pred_CONTROL[:,0]),
-                                     feedbackprediction=y_pred_FEEDBACK[:,0]))
-    df.index.name="index"
-    df.reset_index(inplace=True)
-    df["criteria"] = df.controlprediction > 0.5
-    df["criteria2"] = df.feedbackprediction > 0.5
-    ## make figure ##
+    np.save(datadir + '/y_pred_CONTROL_' + str(testMemNum) + '.npy', y_pred_CONTROL)
+    np.save(datadir + '/y_pred_FEEDBACK_' + str(testMemNum) + '.npy', y_pred_FEEDBACK)
+    
+    ens = ['[1.]','[3.]','[4.]','[7.]','[8.]','[9.]','[10.]']
     fig, ax = plt.subplots(figsize=(8,4),dpi=800)
-    ax = df.controlprediction.plot(c='r',label='SSP2-4.5',linewidth=1)
-    df.feedbackprediction.plot(c='xkcd:cobalt blue',ax=ax,label='ARISE',linewidth=1)
-    df[df.criteria].plot(kind='scatter',x='index',y='controlprediction',
-                                 ax=ax,c='r',marker='o')
-    df[~df.criteria].plot(kind='scatter',x='index',y='controlprediction',
-                                  ax=ax,c='r',marker='x')
-    df[df.criteria2].plot(kind='scatter',x='index',y='feedbackprediction',
-                                  ax=ax,c='xkcd:cobalt blue',marker='o')
-    df[~df.criteria2].plot(kind='scatter',x='index',y='feedbackprediction',
-                                   ax=ax,c='xkcd:cobalt blue',marker='x') 
+    for ensNum in range(len(ens)):
+        y_pred_CONTROL = np.load(datadir + '/y_pred_CONTROL_' + str(ens[ensNum]) + '.npy')
+        y_pred_FEEDBACK = np.load(datadir + '/y_pred_FEEDBACK_' + str(ens[ensNum]) + '.npy')
+        
+        ## - add markers to signify if prediction is right or wrong - ##
+        df = pd.DataFrame.from_dict(dict(controlprediction=(1-y_pred_CONTROL[:,0]),
+                                         feedbackprediction=y_pred_FEEDBACK[:,0]))
+        df.index.name="index"
+        df.reset_index(inplace=True)
+        df["criteria"] = df.controlprediction > 0.5
+        df["criteria2"] = df.feedbackprediction > 0.5
+    
+        ## - make figure - ##
+        ax = df.controlprediction.plot(c='r',linewidth=1)
+        df.feedbackprediction.plot(c='xkcd:cobalt blue',ax=ax,linewidth=1)
+        df[df.criteria].plot(kind='scatter',x='index',y='controlprediction',
+                                     ax=ax,c='r',marker='o')
+        df[~df.criteria].plot(kind='scatter',x='index',y='controlprediction',
+                                      ax=ax,c='r',marker='x')
+        df[df.criteria2].plot(kind='scatter',x='index',y='feedbackprediction',
+                                      ax=ax,c='xkcd:cobalt blue',marker='o')
+        df[~df.criteria2].plot(kind='scatter',x='index',y='feedbackprediction',
+                                       ax=ax,c='xkcd:cobalt blue',marker='x')
+    ax.legend(['SSP2-4.5','ARISE'],loc='lower right')
     if timeFrame == 'winter' or timeFrame == 'non_growing_season':
-        plt.xlim([0,lenTime-1])
+        plt.xlim([-1,lenTime])
         ax.set_xticks([0,2,4,6,8,10,12,14,16,18])
         ax.set_xticklabels(['2035','2037','2039','2041','2043','2045','2047','2049','2051','2053'])
     elif timeFrame == 'monthly':
@@ -64,23 +74,23 @@ def makePredictions(timeFrame,var):
     else:
         plt.xlim([0,lenTime-1])
         ax.set_xticks([0,2,4,6,8,10,12,14,16,18])
-        ax.set_xticklabels(['2035','2037','2039','2041','2043','2045','2047','2049','2051','2053'])
+        ax.set_xticklabels(['2035','2037','2039','2041','2043',
+                            '2045','2047','2049','2051','2053',
+                            ])
     plt.axhline(0.5,0,lenTime,linestyle='dashed',color='k',linewidth=0.6)
-    plt.legend(loc='lower right')
+    # plt.legend(loc='lower right')
     ax.set_yticks([])
     ax.set(xlabel=None)
     plt.ylabel('Prediction confidence\n incorrect                        correct',
                fontweight='bold')
     plt.ylim(bottom=0)
-    ax.fill_between(range(lenTime),0,0.5,alpha=0.1,color='k')
+    ax.fill_between(range(lenTime),0,0.5,alpha=0.18,color='k')
     plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_confidence_'\
                 +str(timeFrame)+'_'+str(var)+'.jpg',bbox_inches='tight',dpi=800)
     plt.show()
     ## ----------------------------------- ##
     
-    ## ------ Accuracy metrics ------ ##
-    print("binary accuracy: ", np.round(history.history['binary_accuracy'],decimals=3))
-    
+    ## ------ Accuracy metrics ------ ##    
     ''' Accuracy of each prediction vs label '''
     acc_CONTROL = np.asarray(np.asarray(np.equal(np.round(np.squeeze(y_pred_CONTROL)),
                                                  labels_test[0,:lenTime]),dtype='int32'),dtype='float')
@@ -116,20 +126,7 @@ def makePredictions(timeFrame,var):
     plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/prediction_accuracy_'\
                 +str(timeFrame)+'_'+str(var)+'.jpg', bbox_inches='tight',dpi=900); plt.show()
     ## ------------------------------ ##
-    
-    ## ------ Summarize history for loss ------ ##
-    plt.figure(figsize=(8,4),dpi=700)
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss ' + '(' + str(timeFrame) + ') ' + str(var), fontsize=11)
-    plt.ylabel('loss'); plt.xlabel('epoch')
-    # ymax = np.nanmax([np.nanmax(history.history['val_loss'][1:]), np.nanmax(history.history['loss'][1:])])
-    # plt.ylim(top=ymax)
-    plt.xlim([0,epochs-1])
-    plt.legend(['train', 'val'], loc='upper right')
-    plt.savefig('/Users/arielmor/Desktop/SAI/data/ARISE/figures/train_val_loss_'\
-                +str(timeFrame)+'_'+str(var)+'.jpg',bbox_inches='tight',dpi=700); plt.show()
-    ## ---------------------------------------- ## 
+   
     '''
     First number is likelihood of map coming from first column of testing data,
     second number is likelihood of second column 
@@ -137,24 +134,22 @@ def makePredictions(timeFrame,var):
     First 20 numbers = control, second 20 = arise
     '''
     ## ------ Map of weights ------ ##
-    if singleLayer:
-        from plottingFunctions import get_colormap, make_maps
-        brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
-        mapWeights = (model.layers[0].get_weights()[0].reshape(lenLat,lenLon))
-        
-        from cartopy.util import add_cyclic_point
-        lon2 = lon
-        varControl,lon2 = add_cyclic_point(varControl,coord=lon2)
-        if var == 'ER':
-            vmins = -0.02; vmaxs = 0.02
-        else:
-            vmins = -0.04; vmaxs = 0.04
-        fig,ax = make_maps(False,varControl[0,30:-6,:],mapWeights,lat[30:-6],lon,
-                            vmins,vmaxs,21,rdbu_cmap,
-                            'weights','weights for '+str(timeFrame),
-                            'weights_'+str(timeFrame)+'_'+str(var))
-        # mapWeights = model.layers[0].get_weights()[0][:,1].reshape(lenLat,lenLon)
-        # fig,ax = make_maps(mapWeights,lat[29:-6],lon,
-        #                     -0.02,0.02,21,brbg_cmap,'weights','weights for '+str(timeFrame)+', control','feedback_weights_'+str(timeFrame))
+    from plottingFunctions import get_colormap, make_maps
+    lenLat = 49; lenLon = 288; 
+    brbg_cmap,rdbu_cmap,jet,magma,reds = get_colormap(21)
+    
+    mapWeights = (model.layers[0].get_weights()[0].reshape(lenLat,lenLon))
+    
+    if var == 'ER':
+        vmins = -0.016; vmaxs = 0.016
+    else:
+        vmins = -0.04; vmaxs = 0.04
+    fig,ax = make_maps(mapWeights,lat[30:-6],lon,
+                        vmins,vmaxs,21,rdbu_cmap,
+                        'weights','weights for '+str(timeFrame),
+                        'weights_'+str(timeFrame)+'_'+str(var))
+    # mapWeights = model.layers[0].get_weights()[0][:,1].reshape(lenLat,lenLon)
+    # fig,ax = make_maps(mapWeights,lat[29:-6],lon,
+    #                     -0.02,0.02,21,brbg_cmap,'weights','weights for '+str(timeFrame)+', control','feedback_weights_'+str(timeFrame))
     ## ----------------------------- ##
     return

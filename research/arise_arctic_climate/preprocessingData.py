@@ -6,7 +6,7 @@ Created on Thu Jul 21 15:59:11 2022
 @author: Ariel L. Morrison
 """
 
-def preprocessDataForPrediction(timeFrame,var):
+def preprocessDataForPrediction(timeFrame,var,numYears):
     import os; os.chdir('/Users/arielmor/Projects/actm-sai-csu/research/arise_arctic_climate')
     from readData import readData
     import numpy as np
@@ -34,7 +34,7 @@ def preprocessDataForPrediction(timeFrame,var):
     numYears = number of years for training
     numUnits = total number of time units (e.g., total years in data record)
     '''
-    numYears = 20
+    # numYears = numYears
     if timeFrame == 'monthly':
         timeStartControl = 240 # np.where(control[ens[0]].time == np.datetime64(datetime.datetime(2035, 1, 1)))
         timeEndFeedback  = 359 # np.where(arise[ens[0]].time == np.datetime64(datetime.datetime(2064, 12, 1)))
@@ -120,7 +120,7 @@ def preprocessDataForPrediction(timeFrame,var):
     ## ---------------------------------------------------- ##
     from random import sample
     new_list = sample(ens,len(ens))
-    print('randomized order of ensemble members = ', new_list)
+    print('randomized order of members = ', new_list)
     
     # CONTROL
     featuresC = []
@@ -155,6 +155,7 @@ def preprocessDataForPrediction(timeFrame,var):
     print('training members = ' + str(new_list[:-(valNum+testNum)]))
     print('validate members = ' + str(new_list[-(valNum+testNum):-testNum]))
     print('testing member = ' + str(new_list[-testNum:]))
+    testMemNum      = np.asarray(new_list[-testNum:]); testMemNum = testMemNum.astype(float)
     featuresF_train = featuresF[:-(valNum+testNum)]
     featuresC_train = featuresC[:-(valNum+testNum)]
     featuresF_val   = featuresF[-(valNum+testNum):-testNum]
@@ -310,4 +311,5 @@ def preprocessDataForPrediction(timeFrame,var):
     ## ----------------------------- ##
     
     return lat,lon,features_train,features_val,features_test,\
-        labels_train,labels_val,labels_test,X_train,y_train,X_val,y_val,X_test,y_test,lenTime
+        labels_train,labels_val,labels_test,X_train,y_train,X_val,\
+            y_val,X_test,y_test,lenTime,testMemNum

@@ -53,8 +53,8 @@ def trainModel(timeFrame,var):
     ## ------ Get processed training and test data ------ ##
     lat,lon,features_train,features_val,features_test,\
         labels_train,labels_val,labels_test,X_train,y_train,\
-            X_val,y_val,X_test,y_test,lenTime = preprocessDataForPrediction(str(
-                                                    timeFrame),str(var))
+            X_val,y_val,X_test,y_test,lenTime,testMemNum = preprocessDataForPrediction(str(
+                                                    timeFrame),str(var),20)
     ## ---------------------------------------------------- ## 
     
     ## ------ Categorical labels ------ ##
@@ -309,6 +309,5 @@ def trainModel(timeFrame,var):
         #                     -0.02,0.02,21,brbg_cmap,'weights','weights for '+str(timeFrame)+', control','feedback_weights_'+str(timeFrame))
     ## ----------------------------- ##
     
-    return history,lenTime,y_pred_test
-    
+    return 
 
