@@ -1,7 +1,7 @@
 # Project Description
 * __project-name__: detect_regional_climate
 * __author__: Zachary M. Labe, Elizabeth A. Barnes, and James Hurrell
-* __date__: June 13, 2022
+* __date__: 1 October 2022
 
 Using explainable AI to identify regional climate signals in response to stratospheric aerosol injection
 
@@ -18,7 +18,7 @@ Using explainable AI to identify regional climate signals in response to stratos
     * ```Figures/```
 
 ## Data Access
-* Data can be accessed at this url:
+* Data can be accessed at this url: https://www.earthsystemgrid.org/dataset/ucar.cgd.ccsm4.ARISE-SAI-1.5.html and https://www.earthsystemgrid.org/dataset/ucar.cgd.ccsm4.ARISE-SAI-1.5.html
 * Post-processed data should be stored in a directory called ```Data/```
 
 ## Order of code execution
