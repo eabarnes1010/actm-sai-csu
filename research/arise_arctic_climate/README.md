@@ -24,7 +24,8 @@ Scripts should be run in the following order:
 1. readData.py
 2. preprocessingData.py
 3. plottingFunctions.py
-4. train_and_predict_year.py
+4. trainModel.py
+5. makePredictions.py
 
 ## License
 This project is licensed under an MIT license.
