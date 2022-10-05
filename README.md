@@ -31,7 +31,8 @@ Our approach is three-fold:
 
 ## Publications and Preprints
 
-
+## Presentations
++ Labe, Z.M., E.A. Barnes, and J. Hurrell. Detecting the regional emergence of climate signals with machine learning in a set of stratospheric aerosol injection simulations, *2022 American Geophysical Union Annual Meeting*, Chicago, IL (Dec 2022) [[Abstract]](https://agu.confex.com/agu/fm22/meetingapp.cgi/Paper/1110391)
 
 ## Extra Information
 
