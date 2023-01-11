@@ -30,7 +30,7 @@ Our approach is three-fold:
 
 
 ## Publications and Preprints
-+ Labe, Z.M., E.A. Barnes, and J.W. Hurrell (2023). Identifying the regional emergence of climate patterns in a simulation of stratospheric aerosol injection, doi:10.31223/X5394Z. (*submitted*) [[PREPRINT]](https://eartharxiv.org/repository/view/4894/)
++ Labe, Z.M., E.A. Barnes, and J.W. Hurrell (2023). Identifying the regional emergence of climate patterns in a simulation of stratospheric aerosol injection, doi:10.31223/X5394Z. (*submitted*) [[Preprint]](https://eartharxiv.org/repository/view/4894/)
 
 ## Presentations
 + Labe, Z.M., E.A. Barnes, and J.W. Hurrell. Detecting the regional emergence of climate signals with machine learning in a set of stratospheric aerosol injection simulations, *2022 American Geophysical Union Annual Meeting*, Chicago, IL (Dec 2022) [[Abstract]](https://agu.confex.com/agu/fm22/meetingapp.cgi/Paper/1110391) [[Poster]](https://zacklabe.files.wordpress.com/2022/12/labebarneshurrell_agu_sai2022_poster.pdf)
