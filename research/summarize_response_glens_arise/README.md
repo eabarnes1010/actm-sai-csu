@@ -116,7 +116,7 @@ Generally, code in this repository follows the naming schema:
 ***
 
 ## Metadata
-Funded by DARPA‐PA‐21‐04‐02 with PIs Prof. James Hurrell and
+Funded by DARPA‐PA‐21‐04‐02 with PIs [Prof. James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) and
 [Prof. Elizabeth A. Barnes](https://barnes.atmos.colostate.edu) at Colorado
 State University. Daniel Hueholt was additionally supported by the National Science Foundation Graduate Research Fellowship Program.
 
