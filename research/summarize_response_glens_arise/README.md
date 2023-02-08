@@ -12,12 +12,12 @@ This code accompanies the following manuscript:
 * [Key Research Questions](#key-research-questions)
 * [Data Access](#data-access)
 * [Replicating Hueholt et al. 2023](#replicating-hueholt-et-al-2023)
-* [Making other plots](#making-other-plots)
+* [Making Other Plots](#making-other-plots)
     * [Difference globe example](#difference-globe-example)
     * [Timeseries example](#timeseries-example)
 * [Requirements](#requirements)
-* [Brief description of code within package](#brief-description-of-code-within-package)
-* [Questions and answers](#questions-and-answers)
+* [Brief Description of Code](#brief-description-of-code)
+* [Questions and Answers](#questions-and-answers)
     * [What's with all the variable names referencing "control" and "feedback"?](#whats-with-all-the-variable-names-referencing-control-and-feedback)
     * [What do the "fun_", "run_", and "wrap_" in the filenames mean?](#what-do-the-fun_-run_-and-wrap_-in-the-filenames-mean)
 * [Metadata](#metadata)
@@ -46,7 +46,7 @@ The processed data needed to replicate the results of Hueholt et al. 2023 is hos
 ## Replicating Hueholt et al. 2023
 `wrap_paperplots_basicplots_script` generates all difference globes figures, e.g., Figure 1, 3-8, S2. `wrap_paperplots_ensplots_script` yields all timeseries, e.g., Figure 2, S3, S4.
 
-## Making other plots
+## Making Other Plots
 To make figures that aren't specifically in the paper, use `wrap_basicplots_script` for difference globes and `wrap_ensplots_script` for timeseries.
 
 ### Difference globe example
@@ -60,7 +60,7 @@ The code generates these figures without the title or annotations, which are add
 ## Requirements
 Required Python packages and versions available on `pip` are listed in the `requirements.txt` file. Additionally, the [marineHeatWaves](https://github.com/ecjoliver/marineHeatWaves) package by [Eric Oliver](https://github.com/ecjoliver) is required to run code related to marine heatwaves.
 
-## Brief description of code within package
+## Brief description of Code
 All code written in Python unless specified otherwise.
 * `CustomExceptions`: Custom exceptions, written partly as a coding exercise
 * `fun_basic_plot`: Contains the difference globe plotting functions
@@ -103,7 +103,7 @@ All code written in Python unless specified otherwise.
 
 * `images`: Folder containing images used in the README file.
 
-## Questions and answers
+## Questions and Answers
 ### What's with all the variable names referencing "control" and "feedback"?
 "Control" refers to the runs following a climate change trajectory WITHOUT SAI ("no-SAI" in Hueholt et al. 2023). "Feedback" refers to runs where SAI is also deployed in the model ("SAI" in Hueholt et al. 2023). "Control" and "Feedback" were terms that come out of the development of GLENS and ARISE. I wrote the code in this repository using that standard terminology before settling on the "SAI/no-SAI" terminology we used in the paper.
 
