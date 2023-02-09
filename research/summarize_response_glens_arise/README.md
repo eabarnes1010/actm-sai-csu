@@ -5,7 +5,7 @@ variety of familiar variables. We identify research questions that allow us to
 use GLENS and ARISE together.
 
 This code accompanies the following manuscript:
-**Hueholt, D.M.**, E.A. Barnes, J.W. Hurrell, J.H. Richter, & L. Sun. "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment" submitted to *Earth's Future*, preprint link to be provided.
+Hueholt, D.M., E.A. Barnes, J.W. Hurrell, J.H. Richter, & L. Sun. "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment" submitted to *Earth's Future*, [preprint available at ESSOaR](https://www.doi.org/10.22541/essoar.167591089.94758275/v1).
 
 ## Table of Contents
 * [Project Summary](#project-summary)
